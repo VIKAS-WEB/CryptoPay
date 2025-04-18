@@ -5,14 +5,16 @@ import 'package:crypto_pay/src/utils/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
-class TransactionsScreen extends StatefulWidget {
-  const TransactionsScreen({super.key});
+class DashboardTransactionScreenAll extends StatefulWidget {
+  const DashboardTransactionScreenAll({super.key});
 
   @override
-  _TransactionsScreenState createState() => _TransactionsScreenState();
+  _DashboardTransactionScreenAllState createState() =>
+      _DashboardTransactionScreenAllState();
 }
 
-class _TransactionsScreenState extends State<TransactionsScreen> {
+class _DashboardTransactionScreenAllState
+    extends State<DashboardTransactionScreenAll> {
   final TransactionApiService apiService =
       TransactionApiService(authManager: AuthManager());
   List<Transaction> transactions = [];
@@ -222,52 +224,23 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       key: _scaffoldKey,
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.kprimary,
         elevation: 2,
         title: const Text(
           'Transactions List',
           style: TextStyle(
-            color: Colors.black87,
+            color: AppColors.kwhite,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.filter_list, color: Colors.black87),
+          icon: const Icon(Icons.arrow_back, color: AppColors.kwhite),
           onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
+            Navigator.pop(context); // Navigate back to the previous screen
           },
-          tooltip: 'Filter Transactions',
+          tooltip: 'Back',
         ),
-        actions: [
-           IconButton(
-            icon: Image.asset(
-              'assets/images/Excel.png',
-              //color: Colors.green,
-              height: 24, // Adjust size as needed
-              width: 24, // Adjust size as needed
-            ),
-            onPressed: () {
-              debugPrint('Excel export clicked');
-            },
-            tooltip: 'Export to Excel',
-          ),
-          IconButton(
-            icon: Image.asset(
-              'assets/images/Pdf.png',
-              //color: Colors.red,
-              height: 24, // Adjust size as needed
-              width: 24, // Adjust size as needed
-            ),
-            onPressed: () {
-              debugPrint('PDF export clicked');
-            },
-            tooltip: 'Export to PDF',
-          ),
-         
-          const SizedBox(width: 8),
-         
-        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -310,6 +283,66 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       ),
       body: Column(
         children: [
+          SizedBox(height: 20,),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width/1.1,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+                    
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          icon:
+                              const Icon(Icons.filter_list, color: Colors.black87),
+                          onPressed: () {
+                            _scaffoldKey.currentState?.openDrawer();
+                          },
+                          tooltip: 'Filter Transactions',
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: Image.asset(
+                            'assets/images/Excel.png',
+                            height: 24,
+                            width: 24,
+                          ),
+                          onPressed: () {
+                            debugPrint('Excel export clicked');
+                          },
+                          tooltip: 'Export to Excel',
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: Image.asset(
+                            'assets/images/Pdf.png',
+                            height: 24,
+                            width: 24,
+                          ),
+                          onPressed: () {
+                            debugPrint('PDF export clicked');
+                          },
+                          tooltip: 'Export to PDF',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Add filter, Excel, and PDF icons in a row above the cards
+
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -378,10 +411,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-                  // decoration: BoxDecoration(
-                  //   color: AppColors.kdisabled,
-                  //   borderRadius: BorderRadius.circular(8),
-                  // ),
                   child: Text(
                     'Page [$currentPage] Total $totalItems',
                     style:
@@ -670,8 +699,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            SizedBox(width: 10,),
-          Container(
+            const SizedBox(width: 10),
+            Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: getStatusColor(transaction.status),
@@ -688,18 +717,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         const SizedBox(height: 8),
         Row(
           children: [
-            // Container(
-            //   width: 24,
-            //   height: 24,
-            //   margin: const EdgeInsets.only(right: 8),
-            //   child: Image.asset(
-            //     'assets/crypto/${transaction.convertedCurrency.toLowerCase()}.png',
-            //     width: 24,
-            //     height: 24,
-            //     errorBuilder: (context, error, stackTrace) =>
-            //         const Icon(Icons.error, color: Colors.red, size: 20),
-            //   ),
-            // ),
             Flexible(
               child: Text(
                 '${transaction.requestedAmount} ${transaction.requestedCurrency} → ${transaction.convertedAmount} ${transaction.convertedCurrency}',

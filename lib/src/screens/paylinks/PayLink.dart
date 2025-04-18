@@ -2,6 +2,8 @@ import 'package:crypto_pay/src/utils/Constants.dart';
 import 'package:flutter/material.dart';
 
 class PaymentLinkPage extends StatefulWidget {
+  const PaymentLinkPage({super.key});
+
   @override
   _PaymentLinkPageState createState() => _PaymentLinkPageState();
 }

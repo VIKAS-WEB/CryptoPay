@@ -1,8 +1,11 @@
+import 'package:crypto_pay/src/screens/CustomerList/CustomerList.dart';
 import 'package:crypto_pay/src/screens/DashboardScreen.dart';
+import 'package:crypto_pay/src/screens/Profile/profile.dart';
 import 'package:crypto_pay/src/screens/TransactionScreen/TransactionScreen.dart';
 import 'package:crypto_pay/src/screens/paylinks/plink.dart';
 import 'package:crypto_pay/src/screens/payrequest/PayRequestScreen.dart';
 import 'package:crypto_pay/src/utils/Constants.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 
@@ -20,17 +23,18 @@ class _HomeScreenState extends State<HomeScreen> {
   // Pages for Drawer navigation
   final List<Widget> _drawerPages = [
     const DashboardScreen(), // Index 0
-    PayLinksScreen(),       // Index 1
+    const PayLinksScreen(),       // Index 1
     const PayRequestScreen(), // Index 2
     const WithdrawPage(),    // Index 3
-     TransactionsScreen(), // Index 4
+     const TransactionsScreen(), //Index 4
+     CustomerListScreen(), // Index 5
   ];
 
   // Pages for Bottom Navigation
   final List<Widget> _bottomNavPages = [
     const DashboardScreen(), // Index 0 (Home)
     const SearchPage(),      // Index 1
-    const ProfilePage(),     // Index 2
+    const TransactionsScreen(),     // Index 2
     const NotificationsPage(), // Index 3
   ];
 
@@ -66,19 +70,25 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {
                 Scaffold.of(context).openDrawer();
               },
-              child: Icon(Icons.menu, color: AppColors.kwhite, size: 32),
+              child: const Icon(Icons.menu, color: AppColors.kwhite, size: 32),
             );
           },
         ),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 20),
+            padding: const EdgeInsets.only(right: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(Icons.notifications, color: AppColors.kwhite),
-                SizedBox(width: 30),
-                Icon(Icons.person, color: AppColors.kwhite),
+                const Icon(Icons.notifications, color: AppColors.kwhite),
+                const SizedBox(width: 30),
+                InkWell(
+                  onTap: (){
+                  Navigator.push(context, CupertinoPageRoute(builder: (context) => ProfilePage(),));
+                  },
+                  child: const Icon(Icons.person, color: AppColors.kwhite)),
+                     const SizedBox(width: 30),
+                   const Icon(Icons.logout, color: AppColors.kwhite),
               ],
             ),
           ),
@@ -136,6 +146,12 @@ class _HomeScreenState extends State<HomeScreen> {
               index: 4,
               onTap: _onDrawerItemTapped,
             ),
+            _buildDrawerItem(
+              icon: Icons.person_2,
+              title: 'Customer',
+              index: 5,
+              onTap: _onDrawerItemTapped,
+            ),
           ],
         ),
       ),
@@ -144,17 +160,18 @@ class _HomeScreenState extends State<HomeScreen> {
         icons: const [
           Icons.home,
           Icons.search,
-          Icons.person,
+          Icons.settings_applications,
           Icons.notifications,
         ],
         activeIndex: _bottomNavIndex,
         gapLocation: GapLocation.none,
         notchSmoothness: NotchSmoothness.smoothEdge,
-        leftCornerRadius: 32,
-        rightCornerRadius: 32,
+        leftCornerRadius: 0,
+        backgroundColor: AppColors.kthirdColor,
+        rightCornerRadius: 0,
         onTap: _onBottomNavTapped,
-        activeColor: AppColors.kprimary,
-        inactiveColor: Colors.grey,
+        activeColor: AppColors.kwhite,
+        inactiveColor: AppColors.kprimary,
         splashColor: AppColors.ksecondary,
         elevation: 8,
       ),
@@ -200,13 +217,6 @@ class SearchPage extends StatelessWidget {
   }
 }
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Profile Page', style: TextStyle(fontSize: 24)));
-  }
-}
 
 class NotificationsPage extends StatelessWidget {
   const NotificationsPage({super.key});
@@ -221,13 +231,5 @@ class WithdrawPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(child: Text('Withdraw Page', style: TextStyle(fontSize: 24)));
-  }
-}
-
-class TransactionsPage extends StatelessWidget {
-  const TransactionsPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Transactions Page', style: TextStyle(fontSize: 24)));
   }
 }

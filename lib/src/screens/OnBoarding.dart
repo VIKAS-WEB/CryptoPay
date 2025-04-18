@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class OnboardingPage extends StatefulWidget {
   final List<OnboardingPageModel> pages;
 
-  const OnboardingPage({Key? key, required this.pages}) : super(key: key);
+  const OnboardingPage({super.key, required this.pages});
 
   @override
   _OnboardingPageState createState() => _OnboardingPageState();
@@ -41,7 +41,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     });
                   },
                   itemBuilder: (context, idx) {
-                    final _item = widget.pages[idx];
+                    final item = widget.pages[idx];
                     return Column(
                       children: [
                         Expanded(
@@ -49,7 +49,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           child: Padding(
                             padding: const EdgeInsets.all(32.0),
                             child: Image.asset(
-                              _item.image,
+                              item.image,
                             ),
                           ),
                         ),
@@ -58,26 +58,26 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             child: Column(children: [
                               Padding(
                                 padding: const EdgeInsets.all(16.0),
-                                child: Text(_item.title,
+                                child: Text(item.title,
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleLarge
                                         ?.copyWith(
                                           fontWeight: FontWeight.bold,
-                                          color: _item.textColor,
+                                          color: item.textColor,
                                         )),
                               ),
                               Container(
                                 constraints: const BoxConstraints(maxWidth: 280),
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 24.0, vertical: 8.0),
-                                child: Text(_item.description,
+                                child: Text(item.description,
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
                                         ?.copyWith(
-                                          color: _item.textColor,
+                                          color: item.textColor,
                                         )),
                               )
                             ]))

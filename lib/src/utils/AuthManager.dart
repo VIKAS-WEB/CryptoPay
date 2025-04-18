@@ -1,51 +1,51 @@
-// import 'package:shared_preferences/shared_preferences.dart';
-// import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// class AuthManager {
-//   static const String _userDataKey = 'user_data';
+class AuthManager {
+  static const _storage = FlutterSecureStorage();
+  static const String _isSuccessKey = 'isSuccess';
+  static const String _merchantNameKey = 'merchantName';
+  static const String _merchantEmailKey = 'merchantEmail';
+  static const String _merchantIdKey = 'merchantId';
+  static const String _merchantLoginIpKey = 'merchantLoginIp';
+  static const String _errorKey = 'error';
 
-//   // Save user data to SharedPreferences
-//   static Future<void> saveUserData({
-//     required String merchantName,
-//     required String merchantEmail,
-//     required int merchantId,
-//     required String merchantLoginIp,
-//   }) async {
-//     final prefs = await SharedPreferences.getInstance();
-//     final userData = {
-//       'merchantName': merchantName,
-//       'merchantEmail': merchantEmail,
-//       'merchantId': merchantId,
-//       'merchantLoginIp': merchantLoginIp,
-//     };
-//     await prefs.setString(_userDataKey, jsonEncode(userData));
-//   }
+  static Future<void> saveUserData({
+    required bool isSuccess,
+    required String? merchantName,
+    required String? merchantEmail,
+    required int? merchantId,
+    required String? merchantLoginIp,
+    String? error,
+  }) async {
+    await _storage.write(key: _isSuccessKey, value: isSuccess.toString());
+    await _storage.write(key: _merchantNameKey, value: merchantName ?? '');
+    await _storage.write(key: _merchantEmailKey, value: merchantEmail ?? '');
+    await _storage.write(key: _merchantIdKey, value: (merchantId ?? 0).toString());
+    await _storage.write(key: _merchantLoginIpKey, value: merchantLoginIp ?? '');
+    await _storage.write(key: _errorKey, value: error ?? '');
+  }
 
-//   // Retrieve user data from SharedPreferences
-//   static Future<Map<String, dynamic>?> getUserData() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     final userDataString = prefs.getString(_userDataKey);
-//     if (userDataString != null) {
-//       return jsonDecode(userDataString) as Map<String, dynamic>;
-//     }
-//     return null;
-//   }
+  static Future<Map<String, dynamic>?> getUserData() async {
+    final allValues = await _storage.readAll();
+    if (allValues.containsKey(_merchantIdKey)) {
+      return {
+        'isSuccess': allValues[_isSuccessKey] == 'true',
+        'merchantName': allValues[_merchantNameKey]?.isNotEmpty == true ? allValues[_merchantNameKey] : null,
+        'merchantEmail': allValues[_merchantEmailKey]?.isNotEmpty == true ? allValues[_merchantEmailKey] : null,
+        'merchantId': int.tryParse(allValues[_merchantIdKey] ?? '0') ?? 0,
+        'merchantLoginIp': allValues[_merchantLoginIpKey]?.isNotEmpty == true ? allValues[_merchantLoginIpKey] : null,
+        'error': allValues[_errorKey]?.isNotEmpty == true ? allValues[_errorKey] : null,
+      };
+    }
+    return null;
+  }
 
-//   // Get specific field from user data
-//   static Future<String?> getMerchantName() async {
-//     final userData = await getUserData();
-//     return userData?['merchantName'] as String?;
-//   }
+  static Future<bool> isAuthenticated() async {
+    final allValues = await _storage.readAll();
+    return allValues.containsKey(_merchantIdKey) && allValues[_merchantIdKey] != '0';
+  }
 
-//   // Check if user is authenticated
-//   static Future<bool> isAuthenticated() async {
-//     final userData = await getUserData();
-//     return userData != null;
-//   }
-
-//   // Clear user data
-//   static Future<void> clearUserData() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     await prefs.remove(_userDataKey);
-//   }
-// }
+  static Future<void> clearUserData() async {
+    await _storage.deleteAll();
+  }
+}

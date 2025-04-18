@@ -27,14 +27,18 @@ class AuthProvider with ChangeNotifier {
       if (response.isSuccess) {
         _isAuthenticated = true;
         _loginResponse = response;
-        // Save user data to SharedPreferences
-        // await AuthManager.saveUserData(
-        //   merchantName: response.merchantName ?? 'Unknown',
-        //   merchantEmail: response.merchantEmail ?? '',
-        //   merchantId: response.merchantId ?? 0,
-        //   merchantLoginIp: response.merchantLoginIp ?? '',
-        // );
-        print('Saved merchant name in AuthProvider: ${response.merchantName}'); // Debug
+       // Save user data to SharedPreferences
+        await AuthManager.saveUserData(
+          merchantName: response.merchantName ?? 'Unknown',
+          merchantEmail: response.merchantEmail ?? '',
+          merchantId: response.merchantId ?? 0,
+          merchantLoginIp: response.merchantLoginIp ?? '', 
+          isSuccess: true,
+        );
+        print('Saved merchant name in AuthProvider: ${response.merchantName}'); 
+        print('Saved merchant Email in AuthProvider: ${response.merchantEmail}'); 
+        print('Saved merchant ID in AuthProvider: ${response.merchantId}'); 
+        // Debug
       } else {
         _errorMessage = response.error ?? 'Invalid credentials';
       }

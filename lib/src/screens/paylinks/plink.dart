@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PayLinksScreen extends StatelessWidget {
+  const PayLinksScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,8 +14,8 @@ class PayLinksScreen extends StatelessWidget {
         color: Colors.grey[200],
         child: Center(
           child: Container(
-            padding: EdgeInsets.all(16.0),
-            margin: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
+            margin: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12.0),
@@ -22,27 +24,27 @@ class PayLinksScreen extends StatelessWidget {
                   color: Colors.grey.withOpacity(0.2),
                   spreadRadius: 2,
                   blurRadius: 5,
-                  offset: Offset(0, 3),
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.shopping_cart,
                   size: 80,
                   color: Colors.black,
                 ),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   'No Pay Links yet',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   'You currently do not have any paylinks.\nCreate one to start accepting payment',
                   textAlign: TextAlign.center,
@@ -51,7 +53,7 @@ class PayLinksScreen extends StatelessWidget {
                     color: Colors.grey[600],
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                    Navigator.push(context, CupertinoPageRoute(builder: (context) => PaymentLinkPage(),));
@@ -62,7 +64,7 @@ class PayLinksScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  child: Text('+ Create Pay Link', style: TextStyle(color: AppColors.kwhite),),
+                  child: const Text('+ Create Pay Link', style: TextStyle(color: AppColors.kwhite),),
                 ),
               ],
             ),

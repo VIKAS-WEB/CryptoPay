@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class GeneratePay extends StatelessWidget {
+  const GeneratePay({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,13 +44,13 @@ class GeneratePay extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context, CupertinoPageRoute(builder: (context) => PayRequestScreen(),));
+                Navigator.push(context, CupertinoPageRoute(builder: (context) => const PayRequestScreen(),));
               },
-              child: const Text('+ Add payment Request'),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white, backgroundColor: Colors.blue,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
+              child: const Text('+ Add payment Request'),
             ),
           ],
         ),

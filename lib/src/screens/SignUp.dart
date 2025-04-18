@@ -77,7 +77,7 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: 120,),
+            const SizedBox(height: 120,),
                 ClipPath(
               clipper: ArcClipper(),
               child: AnimatedBuilder(
@@ -106,16 +106,16 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
               padding: const EdgeInsets.only(left: 40, right: 40, top: 10),
               child: Column(
                 children: [
-                  Text(
+                  const Text(
                     'SIGN UP',
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 10),
-                  Text(
+                  const SizedBox(height: 10),
+                  const Text(
                     'Please Fill in the form below',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   AnimatedBuilder(
                     animation: _animacaoSize!,
                     builder: (context, widget) {
@@ -176,7 +176,7 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                         child: RichText(
                           text: TextSpan(
                             text: 'By creating an account you agree to the ',
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.black54,
                               fontWeight: FontWeight.normal,
                               fontSize: 12
@@ -184,14 +184,14 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                             children: [
                               TextSpan(
                                 text: 'Terms & Conditions',
-                                style: TextStyle(color: AppColors.kprimary, fontSize: 12),
+                                style: const TextStyle(color: AppColors.kprimary, fontSize: 12),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     // Navigate to Terms & Conditions page
                                     // Example: Navigator.push(context, MaterialPageRoute(builder: (context) => TermsPage()));
                                   },
                               ),
-                              TextSpan(
+                              const TextSpan(
                                 text: ' and our ',
                                 style: TextStyle(
                                   color: Colors.black54,
@@ -201,7 +201,7 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                               ),
                               TextSpan(
                                 text: 'Privacy Policy',
-                                style: TextStyle(color: AppColors.kprimary),
+                                style: const TextStyle(color: AppColors.kprimary),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     // Navigate to Privacy Policy page
@@ -258,7 +258,7 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         "Already Have an Account? ",
                         style: TextStyle(
                           color: Colors.black54,
@@ -269,10 +269,10 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                         onTap: () {
                           Navigator.push(
                             context,
-                            CupertinoPageRoute(builder: (context) => Login()),
+                            CupertinoPageRoute(builder: (context) => const Login()),
                           );
                         },
-                        child: Text(
+                        child: const Text(
                           "Sign In",
                           style: TextStyle(
                             color: AppColors.kprimary,

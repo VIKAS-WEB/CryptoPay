@@ -81,13 +81,13 @@ class _SplashScreenState extends State<SplashScreen> {
                       'Poppins', // Make sure to add this font in pubspec.yaml
                   letterSpacing: 2,
                   foreground: Paint()
-                    ..shader = LinearGradient(
+                    ..shader = const LinearGradient(
                       colors: <Color>[
                         Color(0xFFef4923), // Indigo/Deep Purple (match your logo)
                         Color(0xFF333333), // Purple Accent
                       ],
                     ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
-                  shadows: [
+                  shadows: const [
                     Shadow(
                       blurRadius: 8.0,
                       color: Colors.black26,
