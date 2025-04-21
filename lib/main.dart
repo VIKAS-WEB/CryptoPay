@@ -1,5 +1,7 @@
 import 'package:crypto_pay/src/providers/Auth_Provider.dart';
 import 'package:crypto_pay/src/screens/CustomerList/CustomerList.dart';
+import 'package:crypto_pay/src/screens/ForgotPassword/ForgotPassword.dart';
+import 'package:crypto_pay/src/screens/ForgotPassword/OtpScreen.dart';
 import 'package:crypto_pay/src/screens/HomeScreen.dart';
 import 'package:crypto_pay/src/screens/LoginScreen.dart';
 import 'package:crypto_pay/src/screens/SplashScreen.dart';
@@ -28,9 +30,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(primarySwatch: Colors.blue),
-        home:  SplashScreen(),
-      
-      ),
+        home:  const OtpScreen())
     );
   }
-}
+}   

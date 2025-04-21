@@ -1,9 +1,10 @@
 import 'dart:ui';
 import 'package:crypto_pay/src/providers/Auth_Provider.dart';
 import 'package:crypto_pay/src/screens/DashboardScreen.dart';
-import 'package:crypto_pay/src/screens/ForgotPassword/ForgotPassword.dart';
+import 'package:crypto_pay/src/screens/ForgotPassword/ChangePassword.dart';
 import 'package:crypto_pay/src/screens/HomeScreen.dart';
 import 'package:crypto_pay/src/screens/InputCustomizado%20.dart';
+import 'package:crypto_pay/src/screens/LoginScreen.dart';
 import 'package:crypto_pay/src/screens/SignUp.dart';
 import 'package:crypto_pay/src/screens/button.dart';
 import 'package:crypto_pay/src/utils/Constants.dart';
@@ -11,21 +12,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class OtpScreen extends StatefulWidget {
+  const OtpScreen({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<OtpScreen> createState() => _OtpScreenState();
 }
 
-class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
+class _OtpScreenState extends State<OtpScreen> with SingleTickerProviderStateMixin {
   AnimationController? _controller;
   Animation<double>? _animacaoBlur;
   Animation<double>? _animacaoSize;
 
+  final List<TextEditingController> _otpControllers = List.generate(4, (_) => TextEditingController());
+  final List<FocusNode> _otpFocusNodes = List.generate(4, (_) => FocusNode());
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -56,13 +57,26 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
 
     _controller?.forward();
+
+    // Move focus to next field when a digit is entered
+    for (int i = 0; i < _otpControllers.length; i++) {
+      _otpControllers[i].addListener(() {
+        if (_otpControllers[i].text.length == 1 && i < _otpControllers.length - 1) {
+          _otpFocusNodes[i + 1].requestFocus();
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
     _controller?.dispose();
-    _usernameController.dispose();
-    _passwordController.dispose();
+    for (var controller in _otpControllers) {
+      controller.dispose();
+    }
+    for (var focusNode in _otpFocusNodes) {
+      focusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -102,9 +116,9 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   ),
                 ),
                 Text(
-                  'CryptoPay',
+                  'OTP Verification',
                   style: TextStyle(
-                    fontSize: 36,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',
                     letterSpacing: 2,
@@ -124,6 +138,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                     ],
                   ),
                 ),
+                const SizedBox(height: 10),
+                Text('We sent a code to vikashg@itio.in.', style: TextStyle(fontFamily: 'Poppins', fontSize: 12)),
                 Padding(
                   padding: const EdgeInsets.only(left: 40, right: 40, top: 40),
                   child: Form(
@@ -139,49 +155,58 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(20),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(240, 152, 70, 1),
-                                    blurRadius: 80,
-                                    spreadRadius: 1,
-                                  )
-                                ],
+                                // boxShadow: const [
+                                //   BoxShadow(
+                                //     color: Color.fromRGBO(240, 152, 70, 1),
+                                //     blurRadius: 80,
+                                //     spreadRadius: 1,
+                                //   )
+                                // ],
                               ),
-                              child: Column(
-                                children: [
-                                  InputCustomizado(
-                                    controller: _usernameController,
-                                    hint: 'Username',
-                                    obscure: false,
-                                    icon: const Icon(Icons.person),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter username';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  InputCustomizado(
-                                    controller: _passwordController,
-                                    hint: 'Password',
-                                    obscure: true,
-                                    icon: const Icon(Icons.lock),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter password';
-                                      }
-                                      if (value.length < 6) {
-                                        return 'Password must be at least 6 characters';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ],
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: List.generate(4, (index) {
+                                  return SizedBox(
+                                    width: 50,
+                                    child: TextFormField(
+                                      controller: _otpControllers[index],
+                                      focusNode: _otpFocusNodes[index],
+                                      keyboardType: TextInputType.number,
+                                      textAlign: TextAlign.center,
+                                      maxLength: 1,
+                                      decoration: InputDecoration(
+                                        fillColor: Colors.transparent,
+                                        counterText: "",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                          borderSide: BorderSide(color: AppColors.kprimary, width: 2),
+                                        ),
+                                        
+                                      ),
+                                      onChanged: (value) {
+                                        if (value.length == 1 && index < 3) {
+                                          _otpFocusNodes[index + 1].requestFocus();
+                                        } else if (value.isEmpty && index > 0) {
+                                          _otpFocusNodes[index - 1].requestFocus();
+                                        }
+                                      },
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter OTP digit';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  );
+                                }),
                               ),
                             );
                           },
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 10),
                         if (authProvider.errorMessage != null)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 10),
@@ -190,46 +215,14 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                               style: const TextStyle(color: Colors.red),
                             ),
                           ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Checkbox(
-                                  value: false,
-                                  onChanged: (bool? value) {},
-                                ),
-                                const Text(
-                                  "Remember me",
-                                  style: TextStyle(
-                                    color: Colors.black54,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            TextButton(
-                              onPressed: () {
-                              Navigator.push(context, CupertinoPageRoute(builder: (context) => ForgotPassword(),));
-                              },
-                              child: const Text(
-                                "Forget Password?",
-                                style: TextStyle(
-                                  color: Colors.black54,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 10),
                         SizedBox(
                           width: double.infinity,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                             width: authProvider.isLoading ? 60 : 300,
-                            height: 50,
+                            height: 45,
                             child: Center(
                               child: authProvider.isLoading
                                   ? const SizedBox(
@@ -242,42 +235,28 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                                     )
                                   : Button(
                                       controller: _controller!,
-                                      onTap: () async {
-                                        if (_formKey.currentState!.validate()) {
-                                          await authProvider.login(
-                                            _usernameController.text,
-                                            _passwordController.text,
-                                          );
-                                          if (authProvider.isAuthenticated) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                backgroundColor: AppColors.ksuccess,
-                                                content: Text(
-                                                  'Welcome, ${authProvider.loginResponse?.merchantName ?? 'User'}!',
-                                                ),
-                                              ),
-                                            );
-                                            Navigator.pushReplacement(
-                                              context,
-                                              CupertinoPageRoute(
-                                                builder: (context) => const HomeScreen(),
-                                              ),
-                                            );
-                                          }
-                                        }
+                                      onTap: () {
+                                      
+                                        Navigator.push(context, CupertinoPageRoute(builder: (context) => ChangePassword(),));
                                       },
-                                      text: 'Login',
+                                      text: 'Verify',
+                                      textStyle: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                      ),
                                       backgroundColor: AppColors.kprimary,
                                     ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                         const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text(
-                              "Don't have an account? ",
+                              "Didn't Receive the OTP ? ",
                               style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
@@ -288,12 +267,45 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                                 Navigator.push(
                                   context,
                                   CupertinoPageRoute(
-                                    builder: (context) => const SignUp(),
+                                    builder: (context) => const Login(),
                                   ),
                                 );
                               },
                               child: const Text(
-                                "Register",
+                                "Click To Resend",
+                                style: TextStyle(
+                                  color: AppColors.kprimary,
+                                  decoration: TextDecoration.none,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10,),
+                        Divider(color: Colors.black12,),
+                        const SizedBox(height:10 ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Back To Login ? ",
+                              style: TextStyle(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(
+                                    builder: (context) => const Login(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Login",
                                 style: TextStyle(
                                   color: AppColors.kprimary,
                                   decoration: TextDecoration.none,

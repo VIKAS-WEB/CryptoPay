@@ -4,10 +4,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// Assuming Transaction model and AuthManager are defined elsewhere
-// import 'transaction_model.dart';
-// import 'auth_manager.dart';
-
 class TransactionApiService {
   static const String baseUrl = 'https://cryptopay.oyefin.com/API/TransactionList';
   final AuthManager authManager;
@@ -15,7 +11,7 @@ class TransactionApiService {
   TransactionApiService({required this.authManager});
 
   Future<List<Transaction>> fetchTransactions({
-    int limit = 100,
+    int? limit, // Make limit optional
     String? dateFrom,
     String? dateTo,
   }) async {
@@ -33,11 +29,17 @@ class TransactionApiService {
       }
 
       // Build query parameters
-      final queryParams = {
-        'Limit': limit.toString(),
-        if (dateFrom != null) 'DateFrom': dateFrom,
-        if (dateTo != null) 'DateTo': dateTo,
-      };
+      final queryParams = <String, String>{};
+      if (limit != null) {
+        queryParams['Limit'] = limit.toString();
+      }
+      if (dateFrom != null) {
+        queryParams['DateFrom'] = dateFrom;
+      }
+      if (dateTo != null) {
+        queryParams['DateTo'] = dateTo;
+      }
+
       final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
 
       final response = await http.get(

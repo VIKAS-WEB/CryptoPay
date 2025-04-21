@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class InputCustomizado extends StatelessWidget {
-  const InputCustomizado({
+  const   InputCustomizado({
     super.key,
     required this.hint,
     this.obscure = false,

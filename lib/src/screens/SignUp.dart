@@ -165,6 +165,7 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                   Row(
                     children: [
                       Checkbox(
+                        activeColor: AppColors.kprimary,
                         value: _isChecked, // Bind to state
                         onChanged: (bool? value) {
                           setState(() {

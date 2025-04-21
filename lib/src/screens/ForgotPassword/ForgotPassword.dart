@@ -1,9 +1,11 @@
 import 'dart:ui';
 import 'package:crypto_pay/src/providers/Auth_Provider.dart';
 import 'package:crypto_pay/src/screens/DashboardScreen.dart';
-import 'package:crypto_pay/src/screens/ForgotPassword/ForgotPassword.dart';
+import 'package:crypto_pay/src/screens/ForgotPassword/ChangePassword.dart';
+import 'package:crypto_pay/src/screens/ForgotPassword/OtpScreen.dart';
 import 'package:crypto_pay/src/screens/HomeScreen.dart';
 import 'package:crypto_pay/src/screens/InputCustomizado%20.dart';
+import 'package:crypto_pay/src/screens/LoginScreen.dart';
 import 'package:crypto_pay/src/screens/SignUp.dart';
 import 'package:crypto_pay/src/screens/button.dart';
 import 'package:crypto_pay/src/utils/Constants.dart';
@@ -11,21 +13,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class ForgotPassword extends StatefulWidget {
+  const ForgotPassword({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<ForgotPassword> createState() => _ForgotPasswordState();
 }
 
-class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
+class _ForgotPasswordState extends State<ForgotPassword> with SingleTickerProviderStateMixin {
   AnimationController? _controller;
   Animation<double>? _animacaoBlur;
   Animation<double>? _animacaoSize;
 
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+ // final _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -61,8 +63,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _controller?.dispose();
-    _usernameController.dispose();
-    _passwordController.dispose();
+    _emailController.dispose();
+    //_passwordController.dispose();
     super.dispose();
   }
 
@@ -102,9 +104,9 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   ),
                 ),
                 Text(
-                  'CryptoPay',
+                  'Forgot Password',
                   style: TextStyle(
-                    fontSize: 36,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',
                     letterSpacing: 2,
@@ -124,6 +126,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                     ],
                   ),
                 ),
+                SizedBox(height: 10,),
+                Text('No Worries, We Will Send you Reset instructions.', style: TextStyle(fontFamily: 'Poppins', fontSize: 12),),
                 Padding(
                   padding: const EdgeInsets.only(left: 40, right: 40, top: 40),
                   child: Form(
@@ -150,38 +154,24 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                               child: Column(
                                 children: [
                                   InputCustomizado(
-                                    controller: _usernameController,
-                                    hint: 'Username',
+                                    controller: _emailController,
+                                    hint: 'Enter Registered Email',
                                     obscure: false,
-                                    icon: const Icon(Icons.person),
+                                    icon: const Icon(Icons.email),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter username';
+                                        return 'Please enter Registered Email';
                                       }
                                       return null;
                                     },
                                   ),
-                                  InputCustomizado(
-                                    controller: _passwordController,
-                                    hint: 'Password',
-                                    obscure: true,
-                                    icon: const Icon(Icons.lock),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter password';
-                                      }
-                                      if (value.length < 6) {
-                                        return 'Password must be at least 6 characters';
-                                      }
-                                      return null;
-                                    },
-                                  ),
+                                  
                                 ],
                               ),
                             );
                           },
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 10),
                         if (authProvider.errorMessage != null)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 10),
@@ -190,46 +180,15 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                               style: const TextStyle(color: Colors.red),
                             ),
                           ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Checkbox(
-                                  value: false,
-                                  onChanged: (bool? value) {},
-                                ),
-                                const Text(
-                                  "Remember me",
-                                  style: TextStyle(
-                                    color: Colors.black54,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            TextButton(
-                              onPressed: () {
-                              Navigator.push(context, CupertinoPageRoute(builder: (context) => ForgotPassword(),));
-                              },
-                              child: const Text(
-                                "Forget Password?",
-                                style: TextStyle(
-                                  color: Colors.black54,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
+                      
+                        const SizedBox(height: 10),
                         SizedBox(
                           width: double.infinity,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                             width: authProvider.isLoading ? 60 : 300,
-                            height: 50,
+                            height: 45,
                             child: Center(
                               child: authProvider.isLoading
                                   ? const SizedBox(
@@ -242,31 +201,16 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                                     )
                                   : Button(
                                       controller: _controller!,
-                                      onTap: () async {
-                                        if (_formKey.currentState!.validate()) {
-                                          await authProvider.login(
-                                            _usernameController.text,
-                                            _passwordController.text,
-                                          );
-                                          if (authProvider.isAuthenticated) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                backgroundColor: AppColors.ksuccess,
-                                                content: Text(
-                                                  'Welcome, ${authProvider.loginResponse?.merchantName ?? 'User'}!',
-                                                ),
-                                              ),
-                                            );
-                                            Navigator.pushReplacement(
-                                              context,
-                                              CupertinoPageRoute(
-                                                builder: (context) => const HomeScreen(),
-                                              ),
-                                            );
-                                          }
-                                        }
+                                      onTap: ()  {
+                                       Navigator.push(context, CupertinoPageRoute(builder: (context) => OtpScreen(),));
                                       },
-                                      text: 'Login',
+                                      text: 'Reset Password',
+                                      textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white, // Text color
+                letterSpacing: 0.5,
+              ),
                                       backgroundColor: AppColors.kprimary,
                                     ),
                             ),
@@ -277,7 +221,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text(
-                              "Don't have an account? ",
+                              "Back To Login ? ",
                               style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
@@ -288,12 +232,12 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                                 Navigator.push(
                                   context,
                                   CupertinoPageRoute(
-                                    builder: (context) => const SignUp(),
+                                    builder: (context) => const Login(),
                                   ),
                                 );
                               },
                               child: const Text(
-                                "Register",
+                                "Login",
                                 style: TextStyle(
                                   color: AppColors.kprimary,
                                   decoration: TextDecoration.none,

@@ -94,7 +94,7 @@ class _DashboardTransactionScreenAllState
       debugPrint('Fetching all transactions');
 
       final fetchedTransactions = await apiService.fetchTransactions(
-          limit: 100); // Adjust limit as needed
+          ); // Adjust limit as needed
       totalItems = fetchedTransactions.length;
 
       debugPrint('Fetched ${fetchedTransactions.length} transactions');

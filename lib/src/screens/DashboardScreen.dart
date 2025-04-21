@@ -55,7 +55,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (retries == maxRetries) {
           setState(() {
             isLoading = false;
-            errorMessage = 'Failed to fetch data after $maxRetries attempts: $e';
+            errorMessage =
+                'Failed to fetch data after $maxRetries attempts: $e';
           });
         }
         await Future.delayed(const Duration(seconds: 2));
@@ -132,7 +133,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> fetchTransactions() async {
     try {
-      final fetchedTransactions = await apiService.fetchTransactions(limit: 100);
+      final fetchedTransactions =
+          await apiService.fetchTransactions(limit: 100);
       debugPrint('Fetched ${fetchedTransactions.length} transactions');
       setState(() {
         transactions = fetchedTransactions;
@@ -224,8 +226,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Dynamic pie chart data with flexible status handling
     final Map<String, double> pieChartData = {};
     final Map<String, Color> statusColors = {
-      'completed': Colors.green,
-      'waiting': Colors.orange,
+      'success': AppColors.ksuccess,
+      'waiting': AppColors.kprimary,
       'declined': Colors.red,
       // Add more statuses if API introduces new ones
     };
@@ -244,14 +246,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       body: isLoading
-          ? const Center(child: SpinKitDoubleBounce(color: AppColors.kprimary, size: 60))
+          ? const Center(
+              child: SpinKitDoubleBounce(color: AppColors.kprimary, size: 60))
           : errorMessage != null
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(errorMessage!),
-                      if (errorMessage!.contains('authenticated') ||             
+                      if (errorMessage!.contains('authenticated') ||
                           errorMessage!.contains('Merchant ID'))
                         ElevatedButton(
                           onPressed: () {
@@ -479,17 +482,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   child: pieChartData.isEmpty ||
                                           totalTransactions == 0
                                       ? const Center(
-                                          child: Text('No transactions available'))
+                                          child:
+                                              Text('No transactions available'))
                                       : PieChart(
                                           dataMap: pieChartData,
                                           colorList: colorList,
                                           chartType: ChartType.ring,
                                           chartRadius: calculateChartRadius(
                                               context, totalTransactions),
-                                          ringStrokeWidth: 32,
+                                          ringStrokeWidth: 38,
                                           legendOptions: const LegendOptions(
                                             showLegends: true,
-                                            legendPosition: LegendPosition.right,
+                                            legendPosition:
+                                                LegendPosition.right,
                                             legendTextStyle:
                                                 TextStyle(fontSize: 14),
                                             showLegendsInRow: false,
@@ -552,10 +557,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   DataColumn(label: Text('Status')),
                                   DataColumn(label: Text('Timestamp')),
                                 ],
-                                rows: transactions.map((transaction) {
+                                rows: transactions
+                                    .take(
+                                        4) // Limit to the first 4 transactions
+                                    .map((transaction) {
                                   return DataRow(cells: [
-                                    DataCell(Text(transaction.transactionId)),
-                                    DataCell(Text(transaction.receivedCurrency)),
+                                    DataCell(Text(transaction.transactionType)),
+                                    DataCell(
+                                        Text(transaction.receivedCurrency)),
                                     DataCell(Text(
                                         '${transaction.requestedAmount} ${transaction.requestedCurrency}')),
                                     DataCell(Text(
@@ -564,8 +573,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         Text(transaction.receivedCurrency)),
                                     DataCell(Text(transaction.transactionType)),
                                     DataCell(Text(transaction.status)),
-                                    DataCell(
-                                        Text(formatDate(transaction.createDate))),
+                                    DataCell(Text(
+                                        formatDate(transaction.createDate))),
                                   ]);
                                 }).toList(),
                               ),

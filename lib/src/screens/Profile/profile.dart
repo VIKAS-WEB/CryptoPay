@@ -42,12 +42,12 @@ class _ProfilePageState extends State<ProfilePage>
         backgroundColor: AppColors.kthirdColor,
         leading: InkWell(
           onTap: () => Navigator.pop(context),
-          child: Icon(
+          child: const Icon(
             Icons.arrow_back,
             color: AppColors.kwhite,
           ),
         ),
-        title: Text(
+        title: const Text(
           'Profile Page',
           style: TextStyle(
             color: AppColors.kwhite,
@@ -58,7 +58,7 @@ class _ProfilePageState extends State<ProfilePage>
         future: AuthManager.getUserData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           final userData = snapshot.data;
@@ -69,7 +69,7 @@ class _ProfilePageState extends State<ProfilePage>
 
           return SingleChildScrollView(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -79,8 +79,8 @@ class _ProfilePageState extends State<ProfilePage>
               child: Column(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(20),
-                    child: CircleAvatar(
+                    padding: const EdgeInsets.all(20),
+                    child: const CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.white,
                       child: Icon(
@@ -90,10 +90,10 @@ class _ProfilePageState extends State<ProfilePage>
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Text(
                     merchantName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: AppColors.kwhite,
@@ -101,49 +101,49 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                   Text(
                     merchantEmail,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: AppColors.kprimary,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Card(
                     color: AppColors.kwhite,
-                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
                     child: Padding(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Personal Info',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Full Name : '),
+                              const Text('Full Name : '),
                               Expanded(
                                 child: Text(merchantName),
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Email : '),
+                              const Text('Email : '),
                               Expanded(
                                 child: Text(merchantEmail),
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
-                          Row(
+                          const SizedBox(height: 10),
+                          const Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Phone : '),
@@ -152,8 +152,8 @@ class _ProfilePageState extends State<ProfilePage>
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
-                          Row(
+                          const SizedBox(height: 10),
+                          const Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Birth Date : '),
@@ -162,8 +162,8 @@ class _ProfilePageState extends State<ProfilePage>
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
-                          Row(
+                          const SizedBox(height: 10),
+                          const Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Gender : '),
@@ -172,8 +172,8 @@ class _ProfilePageState extends State<ProfilePage>
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
-                          Row(
+                          const SizedBox(height: 10),
+                          const Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Address : '),
@@ -186,9 +186,9 @@ class _ProfilePageState extends State<ProfilePage>
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
@@ -205,7 +205,7 @@ class _ProfilePageState extends State<ProfilePage>
                       indicatorColor: Colors.orange,
                       labelColor: Colors.orange,
                       unselectedLabelColor: Colors.grey,
-                      tabs: [
+                      tabs: const [
                         Tab(text: 'Edit Profile'),
                         Tab(text: 'Change Password'),
                         Tab(text: 'Security Settings'),
@@ -217,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage>
                         600, // Adjust this height based on your content needs
                     child: Container(
                       margin:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       child: TabBarView(
                         controller: _tabController,
                         children: [
@@ -228,7 +228,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 decoration: BoxDecoration(
                                     color: AppColors.kwhite,
                                     borderRadius: BorderRadius.circular(14)),
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Column(
                                   children: [
                                     Stack(
@@ -246,7 +246,7 @@ class _ProfilePageState extends State<ProfilePage>
                                         CircleAvatar(
                                           radius: 15,
                                           backgroundColor: Colors.blue[100],
-                                          child: Icon(
+                                          child: const Icon(
                                             Icons.camera_alt,
                                             size: 15,
                                             color: Colors.blue,
@@ -254,7 +254,7 @@ class _ProfilePageState extends State<ProfilePage>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                     Row(
                                       children: [
                                         Expanded(
@@ -273,7 +273,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                 _gender = newValue;
                                               });
                                             },
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               labelText: 'Gender *',
                                               labelStyle:
                                                   TextStyle(color: Colors.red),
@@ -281,13 +281,13 @@ class _ProfilePageState extends State<ProfilePage>
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 20),
+                                        const SizedBox(width: 20),
                                         Expanded(
                                           child: TextFormField(
                                             initialValue:
                                                 DateFormat('dd-MM-yyyy')
                                                     .format(_birthDate),
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               labelText: 'Birth Date *',
                                               labelStyle:
                                                   TextStyle(color: Colors.red),
@@ -313,23 +313,23 @@ class _ProfilePageState extends State<ProfilePage>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                     Row(
                                       children: [
                                         Expanded(
                                           child: TextFormField(
                                             initialValue: _countryCode,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               labelText: 'Country Code',
                                               border: OutlineInputBorder(),
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 20),
+                                        const SizedBox(width: 20),
                                         Expanded(
                                           child: TextFormField(
                                             initialValue: _phoneNumber,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               labelText: 'Phone Number *',
                                               labelStyle:
                                                   TextStyle(color: Colors.red),
@@ -339,13 +339,13 @@ class _ProfilePageState extends State<ProfilePage>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                     Row(
                                       children: [
                                         Expanded(
                                           child: TextFormField(
                                             initialValue: _city,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               labelText: 'City *',
                                               labelStyle:
                                                   TextStyle(color: Colors.red),
@@ -353,11 +353,11 @@ class _ProfilePageState extends State<ProfilePage>
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 20),
+                                        const SizedBox(width: 20),
                                         Expanded(
                                           child: TextFormField(
                                             initialValue: _state,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               labelText: 'State *',
                                               labelStyle:
                                                   TextStyle(color: Colors.red),
@@ -367,13 +367,13 @@ class _ProfilePageState extends State<ProfilePage>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                     Row(
                                       children: [
                                         Expanded(
                                           child: TextFormField(
                                             initialValue: _country,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               labelText: 'Country *',
                                               labelStyle:
                                                   TextStyle(color: Colors.red),
@@ -381,11 +381,11 @@ class _ProfilePageState extends State<ProfilePage>
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 20),
+                                        const SizedBox(width: 20),
                                         Expanded(
                                           child: TextFormField(
                                             initialValue: _pincode,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               labelText: 'Pincode *',
                                               labelStyle:
                                                   TextStyle(color: Colors.red),
@@ -395,13 +395,13 @@ class _ProfilePageState extends State<ProfilePage>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                     Row(
                                       children: [
                                         Expanded(
                                           child: TextFormField(
                                             initialValue: _addressLine1,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               labelText: 'Address Line 1 *',
                                               labelStyle:
                                                   TextStyle(color: Colors.red),
@@ -409,11 +409,11 @@ class _ProfilePageState extends State<ProfilePage>
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 20),
+                                        const SizedBox(width: 20),
                                         Expanded(
                                           child: TextFormField(
                                             initialValue: _addressLine2,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               labelText: 'Address Line 2 *',
                                               labelStyle:
                                                   TextStyle(color: Colors.red),
@@ -423,7 +423,7 @@ class _ProfilePageState extends State<ProfilePage>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                     ElevatedButton(
                                       onPressed: () {
                                         if (_formKey.currentState!.validate()) {
@@ -432,13 +432,13 @@ class _ProfilePageState extends State<ProfilePage>
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.kprimary,
-                                        minimumSize: Size(double.infinity, 50),
+                                        minimumSize: const Size(double.infinity, 50),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                               10), // Adjust the radius as needed
                                         ),
                                       ),
-                                      child: Text(
+                                      child: const Text(
                                         'Save',
                                         style: TextStyle(color: Colors.white, fontSize: 18),
                                       ),
@@ -449,12 +449,12 @@ class _ProfilePageState extends State<ProfilePage>
                             ),
                           ),
                           Container(
-                            padding: EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Center(
+                            child: const Center(
                               child: Text(
                                 'Change Password Content',
                                 style: TextStyle(fontSize: 18),
@@ -462,12 +462,12 @@ class _ProfilePageState extends State<ProfilePage>
                             ),
                           ),
                           Container(
-                            padding: EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Center(
+                            child: const Center(
                               child: Text(
                                 'Security Settings Content',
                                 style: TextStyle(fontSize: 18),
@@ -478,7 +478,7 @@ class _ProfilePageState extends State<ProfilePage>
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
