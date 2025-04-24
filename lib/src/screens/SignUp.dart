@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:crypto_pay/src/screens/InputCustomizado%20.dart';
-
 import 'package:crypto_pay/src/screens/LoginScreen.dart';
 import 'package:crypto_pay/src/screens/button.dart';
 import 'package:crypto_pay/src/utils/Constants.dart';
@@ -8,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
+import 'package:url_launcher/url_launcher.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -21,7 +21,11 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
   Animation<double>? _animacaoBlur;
   Animation<double>? _animacaoFade;
   Animation<double>? _animacaoSize;
-  bool _isChecked = false; // State for the agreement checkbox
+  bool _isChecked = false;
+
+  // URLs for Terms & Conditions and Privacy Policy
+  final String termsUrl = 'https://yourwebsite.com/terms';
+  final String privacyUrl = 'https://drive.google.com/file/d/1y2IWw7rWB6jkwmO0JC0UUrGzafNHPRa4/view?usp=sharing';
 
   @override
   void initState() {
@@ -70,6 +74,24 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  // Function to launch URL
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not launch $url')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error launching URL: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,8 +99,8 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 120,),
-                ClipPath(
+            const SizedBox(height: 120),
+            ClipPath(
               clipper: ArcClipper(),
               child: AnimatedBuilder(
                 animation: _animacaoBlur!,
@@ -127,7 +149,7 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: const [
                             BoxShadow(
-                                    color: Color.fromRGBO(240, 152, 70, 1),
+                              color: Color.fromRGBO(240, 152, 70, 1),
                               blurRadius: 80,
                               spreadRadius: 1,
                             )
@@ -138,7 +160,7 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                             const InputCustomizado(
                               hint: 'Your Full Name',
                               obscure: false,
-                              icon: Icon(Icons.email),
+                              icon: Icon(Icons.person),
                             ),
                             Container(
                               decoration: const BoxDecoration(
@@ -153,23 +175,23 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                             ),
                             const InputCustomizado(
                               hint: 'Enter Email Address',
-                              obscure: true,
-                              icon: Icon(Icons.lock),
+                              obscure: false,
+                              icon: Icon(Icons.email),
                             ),
                           ],
                         ),
                       );
                     },
                   ),
-                          const SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Row(
                     children: [
                       Checkbox(
                         activeColor: AppColors.kprimary,
-                        value: _isChecked, // Bind to state
+                        value: _isChecked,
                         onChanged: (bool? value) {
                           setState(() {
-                            _isChecked = value ?? false; // Update state
+                            _isChecked = value ?? false;
                           });
                         },
                       ),
@@ -180,16 +202,16 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                             style: const TextStyle(
                               color: Colors.black54,
                               fontWeight: FontWeight.normal,
-                              fontSize: 12
+                              fontSize: 12,
                             ),
                             children: [
                               TextSpan(
                                 text: 'Terms & Conditions',
-                                style: const TextStyle(color: AppColors.kprimary, fontSize: 12),
+                                style: const TextStyle(
+                                    color: AppColors.kprimary, fontSize: 12),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    // Navigate to Terms & Conditions page
-                                    // Example: Navigator.push(context, MaterialPageRoute(builder: (context) => TermsPage()));
+                                    _launchUrl(termsUrl);
                                   },
                               ),
                               const TextSpan(
@@ -197,16 +219,16 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                                 style: TextStyle(
                                   color: Colors.black54,
                                   fontWeight: FontWeight.normal,
-                                  fontSize: 12
+                                  fontSize: 12,
                                 ),
                               ),
                               TextSpan(
                                 text: 'Privacy Policy',
-                                style: const TextStyle(color: AppColors.kprimary),
+                                style: const TextStyle(
+                                    color: AppColors.kprimary, fontSize: 12),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    // Navigate to Privacy Policy page
-                                    // Example: Navigator.push(context, MaterialPageRoute(builder: (context) => PrivacyPage()));
+                                    _launchUrl(privacyUrl);
                                   },
                               ),
                             ],
@@ -215,46 +237,13 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                       ),
                     ],
                   ),
-          
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     Row(
-                  //       children: [
-                  //         Checkbox(
-                  //           value: _isChecked, // Bind to state
-                  //           onChanged: (bool? value) {
-                  //             setState(() {
-                  //               _isChecked = value ?? false; // Update state
-                  //             });
-                  //           },
-                  //         ),
-                  //         Text(
-                  //           "Remember me",
-                  //           style: TextStyle(
-                  //             color: Colors.black54,
-                  //             fontWeight: FontWeight.bold,
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     TextButton(
-                  //       onPressed: () {
-                  //         // Handle forget password logic here
-                  //       },
-                  //       child: Text(
-                  //         "Forget Password?",
-                  //         style: TextStyle(
-                  //           color: Colors.black54,
-                  //           fontWeight: FontWeight.bold,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
                   const SizedBox(height: 20),
-                  Button(controller: _controller!, onTap: (){}, backgroundColor: AppColors.kprimary, text: 'Sign Up',), // Login button remains unchanged
-                  
+                  Button(
+                    controller: _controller!,
+                    onTap: () {},
+                    backgroundColor: AppColors.kprimary,
+                    text: 'Sign Up',
+                  ),
                   const SizedBox(height: 15),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -299,12 +288,12 @@ class ArcClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final Path path = Path();
     path.lineTo(0, 0);
-    path.lineTo(0, size.height - 50); // Start from the bottom
+    path.lineTo(0, size.height - 50);
     path.quadraticBezierTo(
       size.width / 2,
-      size.height, // Control point for the arc peak
+      size.height,
       size.width,
-      size.height - 50, // End point
+      size.height - 50,
     );
     path.lineTo(size.width, 0);
     path.close();

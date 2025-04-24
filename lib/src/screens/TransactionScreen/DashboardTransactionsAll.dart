@@ -93,8 +93,8 @@ class _DashboardTransactionScreenAllState
 
       debugPrint('Fetching all transactions');
 
-      final fetchedTransactions = await apiService.fetchTransactions(
-          ); // Adjust limit as needed
+      final fetchedTransactions =
+          await apiService.fetchTransactions(); // Adjust limit as needed
       totalItems = fetchedTransactions.length;
 
       debugPrint('Fetched ${fetchedTransactions.length} transactions');
@@ -283,66 +283,69 @@ class _DashboardTransactionScreenAllState
       ),
       body: Column(
         children: [
-          SizedBox(height: 20,),
+          SizedBox(
+            height: 20,
+          ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width/1.1,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-                    
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        IconButton(
-                          icon:
-                              const Icon(Icons.filter_list, color: Colors.black87),
-                          onPressed: () {
-                            _scaffoldKey.currentState?.openDrawer();
-                          },
-                          tooltip: 'Filter Transactions',
+                // Filter Icon (Left side)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.filter_list, color: Colors.black87),
+                    onPressed: () {
+                      _scaffoldKey.currentState?.openDrawer();
+                    },
+                    tooltip: 'Filter Transactions',
+                  ),
+                ),
+                const SizedBox(width: 10),
+                // Excel and PDF Icons (Right side)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                  ),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Image.asset(
+                          'assets/images/Excel.png',
+                          height: 24,
+                          width: 24,
                         ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/images/Excel.png',
-                            height: 24,
-                            width: 24,
-                          ),
-                          onPressed: () {
-                            debugPrint('Excel export clicked');
-                          },
-                          tooltip: 'Export to Excel',
+                        onPressed: () {
+                          debugPrint('Excel export clicked');
+                        },
+                        tooltip: 'Export to Excel',
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: Image.asset(
+                          'assets/images/Pdf.png',
+                          height: 24,
+                          width: 24,
                         ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/images/Pdf.png',
-                            height: 24,
-                            width: 24,
-                          ),
-                          onPressed: () {
-                            debugPrint('PDF export clicked');
-                          },
-                          tooltip: 'Export to PDF',
-                        ),
-                      ],
-                    ),
+                        onPressed: () {
+                          debugPrint('PDF export clicked');
+                        },
+                        tooltip: 'Export to PDF',
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          // Add filter, Excel, and PDF icons in a row above the cards
-
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())

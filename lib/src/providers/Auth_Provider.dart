@@ -27,18 +27,17 @@ class AuthProvider with ChangeNotifier {
       if (response.isSuccess) {
         _isAuthenticated = true;
         _loginResponse = response;
-       // Save user data to SharedPreferences
+        // Save user data to SharedPreferences
         await AuthManager.saveUserData(
           merchantName: response.merchantName ?? 'Unknown',
           merchantEmail: response.merchantEmail ?? '',
           merchantId: response.merchantId ?? 0,
-          merchantLoginIp: response.merchantLoginIp ?? '', 
+          merchantLoginIp: response.merchantLoginIp ?? '',
           isSuccess: true,
         );
-        print('Saved merchant name in AuthProvider: ${response.merchantName}'); 
-        print('Saved merchant Email in AuthProvider: ${response.merchantEmail}'); 
-        print('Saved merchant ID in AuthProvider: ${response.merchantId}'); 
-        // Debug
+        print('Saved merchant name in AuthProvider: ${response.merchantName}');
+        print('Saved merchant Email in AuthProvider: ${response.merchantEmail}');
+        print('Saved merchant ID in AuthProvider: ${response.merchantId}');
       } else {
         _errorMessage = response.error ?? 'Invalid credentials';
       }
@@ -51,7 +50,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
-   // await AuthManager.clearUserData();
+    await AuthManager.clearUserData();
     _isAuthenticated = false;
     _loginResponse = null;
     _errorMessage = null;
@@ -59,20 +58,34 @@ class AuthProvider with ChangeNotifier {
   }
 
   // Initialize authentication state
-  // Future<void> initialize() async {
-  //   _isAuthenticated = await AuthManager.isAuthenticated();
-  //   if (_isAuthenticated) {
-  //     final userData = await AuthManager.getUserData();
-  //     if (userData != null) {
-  //       _loginResponse = LoginResponseModel(
-  //         isSuccess: true,
-  //         merchantName: userData['merchantName'],
-  //         merchantEmail: userData['merchantEmail'],
-  //         merchantId: userData['merchantId'],
-  //         merchantLoginIp: userData['merchantLoginIp'],
-  //       );
-  //     }
-  //   }
-  //   notifyListeners();
-  // }
+  Future<void> initialize() async {
+    try {
+      _isAuthenticated = await AuthManager.isAuthenticated();
+      if (_isAuthenticated) {
+        final userData = await AuthManager.getUserData();
+        if (userData != null) {
+          _loginResponse = LoginResponseModel(
+            isSuccess: true,
+            merchantName: userData['merchantName'],
+            merchantEmail: userData['merchantEmail'],
+            merchantId: userData['merchantId'],
+            merchantLoginIp: userData['merchantLoginIp'],
+            error: null, // Ensure error is null for successful init
+          );
+        } else {
+          _isAuthenticated = false; // Invalidate if userData is missing
+        }
+      }
+    } catch (e) {
+      print('AuthProvider: Error initializing auth: $e');
+      _isAuthenticated = false;
+    }
+    notifyListeners();
+  }
+
+  // Explicit method to check authentication status
+  Future<bool> checkAuthenticationStatus() async {
+    await initialize();
+    return _isAuthenticated;
+  }
 }

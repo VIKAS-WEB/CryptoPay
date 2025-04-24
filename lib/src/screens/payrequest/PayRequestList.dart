@@ -1,40 +1,35 @@
-import 'package:crypto_pay/src/screens/paylinks/plink.dart';
-import 'package:crypto_pay/src/utils/Constants.dart';
+import 'package:crypto_pay/src/screens/payrequest/PayRequestScreen.dart';
+import 'package:crypto_pay/src/services/api_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:crypto_pay/src/services/api_service.dart';
-import 'package:crypto_pay/src/models/PayLinkListModel.dart';
+import 'package:crypto_pay/src/models/PayRequestModelList.dart';
 import 'package:crypto_pay/src/utils/AuthManager.dart';
-import 'package:lottie/lottie.dart'; // Import Lottie package
+import 'package:crypto_pay/src/utils/Constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-import 'PayLink.dart';
-
-class PayLinksList extends StatefulWidget {
-  PayLinksList({super.key});
-
+class PayRequestListScreen extends StatefulWidget {
   @override
-  _PayLinksListState createState() => _PayLinksListState();
+  _PayRequestListScreenState createState() => _PayRequestListScreenState();
 }
 
-class _PayLinksListState extends State<PayLinksList> {
+class _PayRequestListScreenState extends State<PayRequestListScreen> {
   final ApiService apiService = ApiService();
-  late Future<List<PayLinkListModel>> _payLinksFuture;
+  late Future<List<PayRequestModelList>> _payRequestsFuture;
 
   @override
   void initState() {
     super.initState();
-    _payLinksFuture = apiService.fetchPaymentLinkList();
+    _payRequestsFuture = apiService.fetchPayRequestList();
   }
 
-  Future<void> _refreshLinks() async {
+  Future<void> _refreshRequests() async {
     try {
       setState(() {
-        _payLinksFuture = apiService.fetchPaymentLinkList();
+        _payRequestsFuture = apiService.fetchPayRequestList();
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error refreshing links: $e')),
+        SnackBar(content: Text('Error refreshing requests: $e')),
       );
     }
   }
@@ -44,6 +39,7 @@ class _PayLinksListState extends State<PayLinksList> {
     return Scaffold(
       backgroundColor: AppColors.kwhite,
       appBar: AppBar(
+        leading: null,
         toolbarHeight: 70,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -57,7 +53,7 @@ class _PayLinksListState extends State<PayLinksList> {
           ),
         ),
         title: const Text(
-          'Pay Links',
+          'Pay Requests',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w700,
@@ -71,19 +67,15 @@ class _PayLinksListState extends State<PayLinksList> {
             padding: const EdgeInsets.only(right: 16.0),
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                        builder: (context) => PaymentLinkPage()));
+                // TODO: Navigate to a page for creating a pay request
+                Navigator.push(context, CupertinoPageRoute(builder: (context) => PayRequestScreen()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white.withOpacity(0.2),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 5,
               ),
-              child: const Text('+ Create Pay Link',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              child: const Text('+ Create Pay Request', style: TextStyle(color: Colors.white, fontSize: 16)),
             ),
           ),
         ],
@@ -108,8 +100,7 @@ class _PayLinksListState extends State<PayLinksList> {
                   elevation: 4,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side:
-                        BorderSide(color: Colors.grey.withOpacity(0.3), width: 1),
+                    side: BorderSide(color: Colors.grey.withOpacity(0.3), width: 1),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -117,24 +108,9 @@ class _PayLinksListState extends State<PayLinksList> {
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Row(
                         children: const [
-                          Expanded(
-                              flex: 2,
-                              child: Text('Product',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87))),
-                          Expanded(
-                              flex: 3,
-                              child: Text('Link',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87))),
-                          Expanded(
-                              flex: 1,
-                              child: Text('Price',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87))),
+                          Expanded(flex: 2, child: Text('Product', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87))),
+                          Expanded(flex: 3, child: Text('Link', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87))),
+                          Expanded(flex: 1, child: Text('Price', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87))),
                         ],
                       ),
                     ),
@@ -149,57 +125,29 @@ class _PayLinksListState extends State<PayLinksList> {
                     if (authSnapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (authSnapshot.hasError || !authSnapshot.data!) {
-                      return const Center(
-                          child: Text('Please log in to view payment links.',
-                              style: TextStyle(color: Colors.grey)));
+                      return const Center(child: Text('Please log in to view pay requests.', style: TextStyle(color: Colors.grey)));
                     }
-                    return FutureBuilder<List<PayLinkListModel>>(
-                      future: _payLinksFuture,
+                    return FutureBuilder<List<PayRequestModelList>>(
+                      future: _payRequestsFuture,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError ||
-                            !snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          // Display Lottie animation and text when no payment links
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Lottie.asset(
-                                  'assets/assets/no_transactions.json',
-                                  width: 200,
-                                  height: 200,
-                                  fit: BoxFit.cover,
-                                ),
-                                const SizedBox(height: 16),
-                                const Text(
-                                  'No Transactions Yet',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
+                        } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+                          return const Center(child: Text('No pay requests generated yet.', style: TextStyle(color: Colors.grey)));
                         }
-                        final payLinks = snapshot.data!;
+                        final payRequests = snapshot.data!;
                         return RefreshIndicator(
-                          onRefresh: _refreshLinks,
+                          onRefresh: _refreshRequests,
                           color: AppColors.kprimary,
                           backgroundColor: Colors.white,
                           child: ListView.builder(
-                            itemCount: payLinks.length,
+                            itemCount: payRequests.length,
                             itemBuilder: (context, index) {
-                              final link = payLinks[index];
-                              return PayLinkItem(
-                                product: link.productName,
-                                link:
-                                    'https://cryptopay.oyefin.com/pay?iid=${link.trackid}',
-                                price:
-                                    '${link.requestedamount} ${link.requestedcurrency}',
+                              final request = payRequests[index];
+                              return PayRequestItem(
+                                product: request.productName,
+                                link: 'https://cryptopay.oyefin.com/pay?iid=${request.trackid}',
+                                price: '${request.requestedAmount} ${request.requestedCurrency}',
                               );
                             },
                           ),
@@ -217,13 +165,12 @@ class _PayLinksListState extends State<PayLinksList> {
   }
 }
 
-class PayLinkItem extends StatelessWidget {
+class PayRequestItem extends StatelessWidget {
   final String product;
   final String link;
   final String price;
 
-  const PayLinkItem(
-      {super.key, required this.product, required this.link, required this.price});
+  const PayRequestItem({super.key, required this.product, required this.link, required this.price});
 
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
@@ -257,34 +204,27 @@ class PayLinkItem extends StatelessWidget {
                   flex: 3,
                   child: Text(
                     product,
-                    style: const TextStyle(color: Colors.black87, fontSize: 16),
+                    style: const TextStyle(color: Colors.black87, fontSize: 15),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 0),
                 Expanded(
-                  flex: 6,
+                  flex: 4,
                   child: GestureDetector(
                     onTap: () => _launchURL(link),
                     child: Text(
                       link,
-                      style: const TextStyle(
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
-                          fontSize: 14),
-                      //overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline, fontSize: 14),
                     ),
                   ),
                 ),
                 const SizedBox(width: 4),
                 Expanded(
-                  flex: 4,
+                  flex: 2,
                   child: Text(
                     price,
-                    style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w600),
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.right,
                   ),

@@ -1,9 +1,16 @@
 import 'package:crypto_pay/src/screens/CustomerList/CustomerList.dart';
 import 'package:crypto_pay/src/screens/DashboardScreen.dart';
+import 'package:crypto_pay/src/screens/LoginScreen.dart';
+import 'package:crypto_pay/src/screens/NotificationPage.dart';
 import 'package:crypto_pay/src/screens/Profile/profile.dart';
+import 'package:crypto_pay/src/screens/SearchPage.dart';
 import 'package:crypto_pay/src/screens/TransactionScreen/TransactionScreen.dart';
+import 'package:crypto_pay/src/screens/paylinks/PayLinkList.dart';
 import 'package:crypto_pay/src/screens/paylinks/plink.dart';
+import 'package:crypto_pay/src/screens/payrequest/PayRequestList.dart';
 import 'package:crypto_pay/src/screens/payrequest/PayRequestScreen.dart';
+import 'package:crypto_pay/src/screens/withdraw/withdraw.dart';
+import 'package:crypto_pay/src/utils/AuthManager.dart';
 import 'package:crypto_pay/src/utils/Constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,19 +30,19 @@ class _HomeScreenState extends State<HomeScreen> {
   // Pages for Drawer navigation
   final List<Widget> _drawerPages = [
     const DashboardScreen(), // Index 0
-    const PayLinksScreen(),       // Index 1
-    const PayRequestScreen(), // Index 2
-    const WithdrawPage(),    // Index 3
-     const TransactionsScreen(), //Index 4
-     CustomerListScreen(), // Index 5
+     PayLinksList(), // Index 1
+     PayRequestListScreen(), // Index 2
+    WithdrawPage(), // Index 3
+    const TransactionsScreen(), // Index 4
+    CustomerListScreen(), // Index 5
   ];
 
   // Pages for Bottom Navigation
   final List<Widget> _bottomNavPages = [
     const DashboardScreen(), // Index 0 (Home)
-    const SearchPage(),      // Index 1
-    const TransactionsScreen(),     // Index 2
-    const NotificationsPage(), // Index 3
+    const SearchPage(), // Index 1
+    const TransactionsScreen(), // Index 2
+    const NotificationPage(), // Index 3
   ];
 
   void _onDrawerItemTapped(int index) {
@@ -51,6 +58,50 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _bottomNavIndex = index;
     });
+  }
+
+  // Show logout confirmation dialog
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Logout'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Clear user data using AuthManager
+                await AuthManager.clearUserData();
+
+                // Close the dialog
+                Navigator.of(context).pop();
+
+                // Navigate to LoginScreen and remove all previous routes
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Login()),
+                  (Route<dynamic> route) => false,
+                );
+              },
+              child: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -80,15 +131,29 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(Icons.notifications, color: AppColors.kwhite),
-                const SizedBox(width: 30),
                 InkWell(
                   onTap: (){
-                  Navigator.push(context, CupertinoPageRoute(builder: (context) => ProfilePage(),));
+                     Navigator.push(
+                      context,
+                      CupertinoPageRoute(builder: (context) => NotificationPage()),
+                    );
                   },
-                  child: const Icon(Icons.person, color: AppColors.kwhite)),
-                     const SizedBox(width: 30),
-                   const Icon(Icons.logout, color: AppColors.kwhite),
+                  child: const Icon(Icons.notifications, color: AppColors.kwhite)),
+                const SizedBox(width: 30),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(builder: (context) => ProfilePage()),
+                    );
+                  },
+                  child: const Icon(Icons.person, color: AppColors.kwhite),
+                ),
+                const SizedBox(width: 30),
+                InkWell(
+                  onTap: _showLogoutDialog, // Call logout dialog
+                  child: const Icon(Icons.logout, color: AppColors.kwhite),
+                ),
               ],
             ),
           ),
@@ -208,28 +273,5 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// Placeholder Pages (unchanged)
-class SearchPage extends StatelessWidget {
-  const SearchPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Search Page', style: TextStyle(fontSize: 24)));
-  }
-}
 
 
-class NotificationsPage extends StatelessWidget {
-  const NotificationsPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Notifications Page', style: TextStyle(fontSize: 24)));
-  }
-}
-
-class WithdrawPage extends StatelessWidget {
-  const WithdrawPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Withdraw Page', style: TextStyle(fontSize: 24)));
-  }
-}

@@ -8,6 +8,7 @@ class AuthManager {
   static const String _merchantIdKey = 'merchantId';
   static const String _merchantLoginIpKey = 'merchantLoginIp';
   static const String _errorKey = 'error';
+  static const String _rememberMeKey = 'rememberMe';
 
   static Future<void> saveUserData({
     required bool isSuccess,
@@ -47,5 +48,14 @@ class AuthManager {
 
   static Future<void> clearUserData() async {
     await _storage.deleteAll();
+  }
+
+  static Future<void> saveRememberMe(bool rememberMe) async {
+    await _storage.write(key: _rememberMeKey, value: rememberMe.toString());
+  }
+
+  static Future<bool?> getRememberMe() async {
+    final value = await _storage.read(key: _rememberMeKey);
+    return value == 'true' ? true : value == 'false' ? false : null;
   }
 }

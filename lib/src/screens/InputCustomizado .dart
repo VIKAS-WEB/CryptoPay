@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class InputCustomizado extends StatelessWidget {
-  const   InputCustomizado({
+class InputCustomizado extends StatefulWidget {
+  const InputCustomizado({
     super.key,
     required this.hint,
     this.obscure = false,
@@ -17,21 +17,47 @@ class InputCustomizado extends StatelessWidget {
   final String? Function(String?)? validator;
 
   @override
+  State<InputCustomizado> createState() => _InputCustomizadoState();
+}
+
+class _InputCustomizadoState extends State<InputCustomizado> {
+  late bool _isObscure;
+
+  @override
+  void initState() {
+    super.initState();
+    _isObscure = widget.obscure;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(left: 8, right: 8),
       child: TextFormField(
-        controller: controller,
-        obscureText: obscure,
-        validator: validator,
+        controller: widget.controller,
+        obscureText: _isObscure,
+        validator: widget.validator,
         decoration: InputDecoration(
-          icon: icon,
+          icon: widget.icon,
           border: InputBorder.none,
-          hintText: hint,
+          hintText: widget.hint,
           hintStyle: const TextStyle(
             color: Colors.grey,
             fontSize: 14,
           ),
+          suffixIcon: widget.obscure
+              ? IconButton(
+                  icon: Icon(
+                    _isObscure ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isObscure = !_isObscure;
+                    });
+                  },
+                )
+              : null,
         ),
       ),
     );

@@ -5,6 +5,7 @@ import 'package:crypto_pay/src/screens/HomeScreen.dart';
 import 'package:crypto_pay/src/screens/InputCustomizado%20.dart';
 import 'package:crypto_pay/src/screens/LoginScreen.dart';
 import 'package:crypto_pay/src/screens/SignUp.dart';
+import 'package:crypto_pay/src/screens/SuccessScreen.dart';
 import 'package:crypto_pay/src/screens/button.dart';
 import 'package:crypto_pay/src/utils/Constants.dart';
 import 'package:flutter/cupertino.dart';
@@ -221,7 +222,7 @@ class _ChangePasswordState extends State<ChangePassword>
                                   : Button(
                                       controller: _controller!,
                                       onTap: () {
-                                        print('Reset Password Clicked');
+                                      Navigator.push(context, CupertinoPageRoute(builder: (context) => SuccessScreen(),));
                                       },
                                       text: 'Confirm',
                                       textStyle: const TextStyle(

@@ -1,20 +1,10 @@
-import 'package:crypto_pay/src/providers/Auth_Provider.dart';
-import 'package:crypto_pay/src/screens/CustomerList/CustomerList.dart';
-import 'package:crypto_pay/src/screens/ForgotPassword/ForgotPassword.dart';
-import 'package:crypto_pay/src/screens/ForgotPassword/OtpScreen.dart';
 import 'package:crypto_pay/src/screens/HomeScreen.dart';
-import 'package:crypto_pay/src/screens/LoginScreen.dart';
 import 'package:crypto_pay/src/screens/SplashScreen.dart';
+import 'package:crypto_pay/src/utils/AuthManager.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
 
 void main() {
-  runApp(ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,15 +12,54 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-       // ChangeNotifierProvider(create: (_) => AuthProvider()),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home:  const OtpScreen())
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'CryptoPay',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const AuthCheck(),
     );
   }
-}   
+}
+
+class AuthCheck extends StatefulWidget {
+  const AuthCheck({super.key});
+
+  @override
+  State<AuthCheck> createState() => _AuthCheckState();
+}
+
+class _AuthCheckState extends State<AuthCheck> {
+  bool _isLoading = true;
+  bool _isAuthenticated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthStatus();
+  }
+
+  Future<void> _checkAuthStatus() async {
+    try {
+      _isAuthenticated = await AuthManager.isAuthenticated();
+    } catch (e) {
+      print('Error checking auth status: $e');
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    return _isAuthenticated ? HomeScreen() : const SplashScreen();
+  }
+}

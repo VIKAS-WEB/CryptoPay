@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:crypto_pay/src/models/ChartDetailsModel.dart';
 import 'package:crypto_pay/src/screens/TransactionScreen/DashboardTransactionsAll.dart';
 import 'package:crypto_pay/src/screens/TransactionScreen/TransactionScreen.dart';
+import 'package:crypto_pay/src/services/api_service.dart';
 import 'package:crypto_pay/src/utils/AuthManager.dart';
 import 'package:crypto_pay/src/utils/Constants.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,15 +24,31 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   List<Map<String, dynamic>> cryptoData = [];
   List<Transaction> transactions = [];
+  ChartStatus? chartStatus;
+  final ApiService _apiService = ApiService();
   bool isLoading = true;
   String? errorMessage;
   final TransactionApiService apiService =
       TransactionApiService(authManager: AuthManager());
+  double btcToUsdRate = 0.0;
+  bool isFetchingRate = false;
+  TextEditingController btcController = TextEditingController();
+  TextEditingController usdController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     fetchData();
+    fetchBtcToUsdRate();
+    btcController.addListener(_onBtcChanged);
+    usdController.addListener(_onUsdChanged);
+  }
+
+  @override
+  void dispose() {
+    btcController.dispose();
+    usdController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchData() async {
@@ -45,6 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         await Future.wait([
           fetchCryptoBalances(),
           fetchTransactions(),
+          fetchChartStats(),
         ]);
         setState(() {
           isLoading = false;
@@ -61,6 +80,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
         await Future.delayed(const Duration(seconds: 2));
       }
+    }
+  }
+
+  Future<void> fetchChartStats() async {
+    try {
+      final stats = await _apiService.fetchTransactionStats();
+      debugPrint('Fetched Chart Stats: ${stats.toJson()}');
+      setState(() {
+        chartStatus = stats;
+      });
+    } catch (e) {
+      debugPrint('Error fetching chart stats: $e');
+      throw Exception('Error fetching chart stats: $e');
     }
   }
 
@@ -145,6 +177,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> fetchBtcToUsdRate() async {
+    try {
+      setState(() {
+        isFetchingRate = true;
+      });
+      final response = await http.get(
+        Uri.parse('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final rate = data['bitcoin']['usd'].toDouble();
+        setState(() {
+          btcToUsdRate = rate;
+          isFetchingRate = false;
+        });
+        debugPrint('Fetched BTC to USD rate: $btcToUsdRate');
+      } else {
+        throw Exception('Failed to fetch BTC to USD rate: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching BTC to USD rate: $e');
+      setState(() {
+        isFetchingRate = false;
+      });
+      throw Exception('Error fetching BTC to USD rate: $e');
+    }
+  }
+
+  void _onBtcChanged() {
+    if (btcController.text.isEmpty) {
+      usdController.text = '';
+      return;
+    }
+    final btcAmount = double.tryParse(btcController.text);
+    if (btcAmount != null && btcToUsdRate > 0) {
+      final usdAmount = btcAmount * btcToUsdRate;
+      usdController.text = usdAmount.toStringAsFixed(2);
+    }
+  }
+
+  void _onUsdChanged() {
+    if (usdController.text.isEmpty) {
+      btcController.text = '';
+      return;
+    }
+    final usdAmount = double.tryParse(usdController.text);
+    if (usdAmount != null && btcToUsdRate > 0) {
+      final btcAmount = usdAmount / btcToUsdRate;
+      btcController.text = btcAmount.toStringAsFixed(8);
+    }
+  }
+
   String _getSvgAssetForCrypto(String name) {
     const String basePath = 'assets/Svg/';
     switch (name) {
@@ -210,32 +295,280 @@ class _DashboardScreenState extends State<DashboardScreen> {
   double calculateChartRadius(BuildContext context, double totalTransactions) {
     final double screenWidth = MediaQuery.of(context).size.width;
     const double baseRadius = 100.0;
-    const double scaleFactor = 0.3; // 30% of screen width
+    const double scaleFactor = 0.3;
     const double minRadius = 80.0;
     const double maxRadius = 150.0;
 
     double radius = screenWidth * scaleFactor;
     if (totalTransactions > 50) {
-      radius *= 1.2; // Increase radius for large datasets
+      radius *= 1.2;
     }
     return radius.clamp(minRadius, maxRadius);
   }
 
+  // Helper method to build input field for Coin Converter
+  Widget _buildInputField(
+    BuildContext context, {
+    required String label,
+    required TextEditingController controller,
+    required String hintText,
+    required double labelFontSize,
+    required double hintFontSize,
+    double? width,
+  }) {
+    return Container(
+      width: width,
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: labelFontSize,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          TextField(
+            controller: controller,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              hintText: hintText,
+              hintStyle: TextStyle(fontSize: hintFontSize, color: AppColors.kthirdColor),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 8),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Responsive Coin Converter section
+  Widget buildCoinConverterSection(BuildContext context) {
+    // Get screen size for responsive scaling
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Dynamic font sizes and padding based on screen width
+    final titleFontSize = screenWidth < 360 ? 16.0 : 18.0;
+    final labelFontSize = screenWidth < 360 ? 18.0 : 20.0;
+    final hintFontSize = screenWidth < 360 ? 14.0 : 16.0;
+    final rateFontSize = screenWidth < 360 ? 12.0 : 14.0;
+    final paddingValue = screenWidth < 360 ? 12.0 : 16.0;
+    final spacing = screenWidth < 360 ? 8.0 : 16.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: screenHeight * 0.04), // Responsive height
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Coin Converter',
+              style: TextStyle(
+                fontSize: titleFontSize,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: screenHeight * 0.015),
+        Container(
+          padding: EdgeInsets.all(paddingValue),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 1,
+                blurRadius: 1,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Input fields row
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  // Determine if we need to stack inputs vertically on very small screens
+                  final isSmallScreen = screenWidth < 360;
+                  return isSmallScreen
+                      ? Column(
+                          children: [
+                            _buildInputField(
+                              context,
+                              label: 'BTC',
+                              controller: btcController,
+                              hintText: '1.0',
+                              labelFontSize: labelFontSize,
+                              hintFontSize: hintFontSize,
+                              width: constraints.maxWidth,
+                            ),
+                            SizedBox(height: spacing),
+                            const Text(
+                              '=',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: spacing),
+                            _buildInputField(
+                              context,
+                              label: 'USD',
+                              controller: usdController,
+                              hintText: '\$${btcToUsdRate.toStringAsFixed(2)}',
+                              labelFontSize: labelFontSize,
+                              hintFontSize: hintFontSize,
+                              width: constraints.maxWidth,
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: _buildInputField(
+                                context,
+                                label: 'BTC',
+                                controller: btcController,
+                                hintText: '1.0',
+                                labelFontSize: labelFontSize,
+                                hintFontSize: hintFontSize,
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: spacing),
+                              child: const Text(
+                                '=',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: _buildInputField(
+                                context,
+                                label: 'USD',
+                                controller: usdController,
+                                hintText: '\$${btcToUsdRate.toStringAsFixed(2)}',
+                                labelFontSize: labelFontSize,
+                                hintFontSize: hintFontSize,
+                              ),
+                            ),
+                          ],
+                        );
+                },
+              ),
+              SizedBox(height: spacing),
+              // Rate and Last Updated row
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isSmallScreen = screenWidth < 400;
+                  return isSmallScreen
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text('Rate: '),
+                                SizedBox(width: 5),
+                                isFetchingRate
+                                    ? const SpinKitThreeBounce(
+                                        color: AppColors.kprimary,
+                                        size: 16,
+                                      )
+                                    : Text(
+                                        '1 BTC = \$${btcToUsdRate.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          color: AppColors.kprimary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: rateFontSize,
+                                        ),
+                                      ),
+                              ],
+                            ),
+                            SizedBox(height: spacing / 2),
+                            Row(
+                              children: [
+                                const Text('Last Updated: '),
+                                SizedBox(width: 4),
+                                Text(
+                                  DateTime.now().toString().substring(0, 10),
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: rateFontSize - 2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Text('Rate: '),
+                                SizedBox(width: 5),
+                                isFetchingRate
+                                    ? const SpinKitThreeBounce(
+                                        color: AppColors.kprimary,
+                                        size: 16,
+                                      )
+                                    : Text(
+                                        '1 BTC = \$${btcToUsdRate.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          color: AppColors.kprimary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: rateFontSize,
+                                        ),
+                                      ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                const Text('Last Updated: '),
+                                SizedBox(width: 4),
+                                Text(
+                                  DateTime.now().toString().substring(0, 10),
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: rateFontSize - 2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Dynamic pie chart data with flexible status handling
-    final Map<String, double> pieChartData = {};
-    final Map<String, Color> statusColors = {
-      'success': AppColors.ksuccess,
-      'waiting': AppColors.kprimary,
-      'declined': Colors.red,
-      // Add more statuses if API introduces new ones
-    };
+    final Map<String, double> pieChartData = chartStatus != null
+        ? {
+            'Success': chartStatus!.totalSuccess.toDouble(),
+            'Failed': chartStatus!.totalFailed.toDouble(),
+            'Processing': chartStatus!.totalProcess.toDouble(),
+          }
+        : {};
 
-    for (var transaction in transactions) {
-      final status = transaction.status.toLowerCase();
-      pieChartData[status] = (pieChartData[status] ?? 0) + 1;
-    }
+    final Map<String, Color> statusColors = {
+      'Success': AppColors.ksuccess,
+      'Processing': AppColors.kprimary,
+      'Failed': Colors.red,
+    };
 
     final colorList = pieChartData.keys
         .map((status) => statusColors[status] ?? Colors.grey)
@@ -266,7 +599,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 )
               : RefreshIndicator(
-                  onRefresh: fetchData,
+                  onRefresh: () async {
+                    await fetchData();
+                    await fetchBtcToUsdRate();
+                  },
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: Padding(
@@ -348,115 +684,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               },
                             ),
                           ),
-                          const SizedBox(height: 30),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Coin Converter',
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.3),
-                                  spreadRadius: 1,
-                                  blurRadius: 1,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: const Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            'BTC',
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          TextField(
-                                            decoration: InputDecoration(
-                                              hintText: '__',
-                                              border: InputBorder.none,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Text(
-                                      '=',
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Expanded(
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            'USD',
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          TextField(
-                                            decoration: InputDecoration(
-                                              hintText: '__',
-                                              border: InputBorder.none,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 16),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text('Change: '),
-                                        Icon(Icons.bolt,
-                                            color: Colors.orange, size: 16),
-                                        Text('-'),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text('Volume: '),
-                                        Icon(Icons.bolt,
-                                            color: Colors.orange, size: 16),
-                                        Text('-'),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
+                          buildCoinConverterSection(context),
                           const SizedBox(height: 20),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Transaction Activates: Total - ${totalTransactions.toInt()}',
+                                'Transaction Activities: Total - ${totalTransactions.toInt()}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -466,7 +700,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               SizedBox(
                                 height: 200,
                                 child: Container(
-                                  padding: const EdgeInsets.all(0),
+                                  padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(8),
@@ -484,25 +718,95 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ? const Center(
                                           child:
                                               Text('No transactions available'))
-                                      : PieChart(
-                                          dataMap: pieChartData,
-                                          colorList: colorList,
-                                          chartType: ChartType.ring,
-                                          chartRadius: calculateChartRadius(
-                                              context, totalTransactions),
-                                          ringStrokeWidth: 38,
-                                          legendOptions: const LegendOptions(
-                                            showLegends: true,
-                                            legendPosition:
-                                                LegendPosition.right,
-                                            legendTextStyle:
-                                                TextStyle(fontSize: 14),
-                                            showLegendsInRow: false,
-                                          ),
-                                          chartValuesOptions:
-                                              const ChartValuesOptions(
-                                            showChartValues: false,
-                                          ),
+                                      : Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Expanded(
+                                              flex: 3,
+                                              child: PieChart(
+                                                dataMap: pieChartData,
+                                                colorList: colorList,
+                                                chartType: ChartType.ring,
+                                                chartRadius:
+                                                    calculateChartRadius(
+                                                        context,
+                                                        totalTransactions),
+                                                ringStrokeWidth: 38,
+                                                legendOptions:
+                                                    const LegendOptions(
+                                                  showLegends: false,
+                                                  legendPosition:
+                                                      LegendPosition.right,
+                                                  legendTextStyle:
+                                                      TextStyle(fontSize: 14),
+                                                  showLegendsInRow: false,
+                                                ),
+                                                chartValuesOptions:
+                                                    const ChartValuesOptions(
+                                                  showChartValues: false,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              flex: 2,
+                                              child: Center(
+                                                child: ListView.builder(
+                                                  shrinkWrap: true,
+                                                  physics:
+                                                      const NeverScrollableScrollPhysics(),
+                                                  itemCount:
+                                                      pieChartData.entries.length,
+                                                  itemBuilder: (context, index) {
+                                                    final entry = pieChartData
+                                                        .entries
+                                                        .toList()[index];
+                                                    final status = entry.key;
+                                                    final count =
+                                                        entry.value.toInt();
+                                                    final color = statusColors[
+                                                            status] ??
+                                                        Colors.grey;
+                                                    return Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 4.0),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Container(
+                                                            width: 12,
+                                                            height: 12,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: color,
+                                                              shape:
+                                                                  BoxShape.circle,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 8),
+                                                          Text(
+                                                            '$status: $count',
+                                                            style: const TextStyle(
+                                                              fontSize: 14,
+                                                              fontWeight:
+                                                                  FontWeight.w500,
+                                                              color: Colors
+                                                                  .black87,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                 ),
                               ),
@@ -513,9 +817,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'Recent Transaction',
+                                'Recent Transactions',
                                 style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87),
                               ),
                               TextButton(
                                 onPressed: () {
@@ -527,55 +833,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                   );
                                 },
-                                child: const Text('View All >'),
+                                child: const Text('View All >',
+                                    style: TextStyle(color: Colors.blue)),
                               ),
                             ],
                           ),
+                          const SizedBox(height: 10),
                           Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.grey.withOpacity(0.3),
-                                  spreadRadius: 1,
-                                  blurRadius: 1,
+                                  color: Colors.grey.withOpacity(0.2),
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
                                   offset: const Offset(0, 3),
                                 ),
                               ],
                             ),
                             child: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
-                              child: DataTable(
-                                columns: const [
-                                  DataColumn(label: Text('TransactionID')),
-                                  DataColumn(label: Text('Asset')),
-                                  DataColumn(label: Text('Requested')),
-                                  DataColumn(label: Text('Converted')),
-                                  DataColumn(label: Text('Received')),
-                                  DataColumn(label: Text('Type')),
-                                  DataColumn(label: Text('Status')),
-                                  DataColumn(label: Text('Timestamp')),
-                                ],
-                                rows: transactions
-                                    .take(
-                                        4) // Limit to the first 4 transactions
-                                    .map((transaction) {
-                                  return DataRow(cells: [
-                                    DataCell(Text(transaction.transactionType)),
-                                    DataCell(
-                                        Text(transaction.receivedCurrency)),
-                                    DataCell(Text(
-                                        '${transaction.requestedAmount} ${transaction.requestedCurrency}')),
-                                    DataCell(Text(
-                                        '${transaction.convertedAmount} ${transaction.convertedCurrency}')),
-                                    DataCell(
-                                        Text(transaction.receivedCurrency)),
-                                    DataCell(Text(transaction.transactionType)),
-                                    DataCell(Text(transaction.status)),
-                                    DataCell(Text(
-                                        formatDate(transaction.createDate))),
-                                  ]);
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                children: transactions.take(4).map((transaction) {
+                                  Color statusColor;
+                                  IconData statusIcon;
+                                  switch (transaction.status.toLowerCase()) {
+                                    case 'declined':
+                                      statusColor = Colors.red;
+                                      statusIcon = Icons.close;
+                                      break;
+                                    case 'success':
+                                      statusColor = Colors.green;
+                                      statusIcon = Icons.check_circle;
+                                      break;
+                                    case 'waiting':
+                                      statusColor = Colors.orange;
+                                      statusIcon = Icons.access_time;
+                                      break;
+                                    default:
+                                      statusColor = Colors.grey;
+                                      statusIcon = Icons.help;
+                                  }
+
+                                  return Container(
+                                    margin:
+                                        const EdgeInsets.symmetric(horizontal: 8),
+                                    width: 300,
+                                    child: Card(
+                                      elevation: 2,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      color: Colors.white,
+                                      child: ListTile(
+                                        contentPadding:
+                                            const EdgeInsets.all(12),
+                                        leading: CircleAvatar(
+                                          backgroundColor:
+                                              statusColor.withOpacity(0.1),
+                                          child: Icon(statusIcon,
+                                              color: statusColor, size: 20),
+                                        ),
+                                        title: Text(
+                                          transaction.transactionId,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        subtitle: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              '${transaction.requestedAmount} ${transaction.requestedCurrency} → ${transaction.convertedAmount} ${transaction.convertedCurrency}',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey[600]),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              formatDate(transaction.createDate),
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.grey[500]),
+                                            ),
+                                          ],
+                                        ),
+                                        trailing: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: statusColor.withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            transaction.status,
+                                            style: TextStyle(
+                                                color: statusColor, fontSize: 12),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
                                 }).toList(),
                               ),
                             ),

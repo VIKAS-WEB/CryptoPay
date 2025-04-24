@@ -207,8 +207,8 @@ class _ProfilePageState extends State<ProfilePage>
                       unselectedLabelColor: Colors.grey,
                       tabs: const [
                         Tab(text: 'Edit Profile'),
-                        Tab(text: 'Change Password'),
-                        Tab(text: 'Security Settings'),
+                        // Tab(text: 'Change Password'),
+                        // Tab(text: 'Security Settings'),
                       ],
                     ),
                   ),

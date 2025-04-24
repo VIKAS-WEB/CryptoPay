@@ -44,7 +44,8 @@ class _GraphState extends State<Graph> {
         if (retries == maxRetries) {
           setState(() {
             isLoading = false;
-            errorMessage = 'Failed to fetch transactions after $maxRetries attempts: $e';
+            errorMessage =
+                'Failed to fetch transactions after $maxRetries attempts: $e';
           });
         }
         await Future.delayed(const Duration(seconds: 2));
@@ -123,7 +124,7 @@ class _GraphState extends State<Graph> {
                           dataMap: pieChartData,
                           colorList: colorList,
                           chartType: ChartType.ring,
-                          chartRadius: calculateChartRadius(context, totalTransactions),
+                          chartRadius:calculateChartRadius(context, totalTransactions),
                           ringStrokeWidth: 32,
                           legendOptions: const LegendOptions(
                             showLegends: true,

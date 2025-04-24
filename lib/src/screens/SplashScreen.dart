@@ -1,8 +1,10 @@
-// lib/splash_screen.dart
 import 'package:crypto_pay/src/screens/OnBoarding.dart';
+import 'package:crypto_pay/src/screens/LoginScreen.dart';
 import 'package:crypto_pay/src/models/OnboardingPageModel.dart';
 import 'package:crypto_pay/src/utils/AnimatedWidget.dart';
+import 'package:crypto_pay/src/utils/Constants.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 
 class SplashScreen extends StatefulWidget {
@@ -16,59 +18,89 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) =>  OnboardingPage(
-          pages: [
-           OnboardingPageModel(
-            title: 'Fast, Fluid and Secure',
-            description:
-                'Enjoy the best of the world in the palm of your hands.',
-            image: 'assets/images/image0.png',
-            bgColor: Colors.indigo,
-          ),
-          OnboardingPageModel(
-            title: 'Connect with your friends.',
-            description: 'Connect with your friends anytime anywhere.',
-            image: 'assets/images/image1.png',
-            bgColor: const Color(0xff1eb090),
-          ),
-          OnboardingPageModel(
-            title: 'Bookmark your favourites',
-            description:
-                'Bookmark your favourite quotes to read at a leisure time.',
-            image: 'assets/images/image2.png',
-            bgColor: const Color(0xfffeae4f),
-          ),
-          OnboardingPageModel(
-            title: 'Follow creators',
-            description: 'Follow your favourite creators to stay in the loop.',
-            image: 'assets/images/image3.png',
-            bgColor: Colors.purple,
-          ),
-          ],
+    _navigateAfterDelay();
+  }
 
-        )),
-      );
-    });
+  Future<void> _navigateAfterDelay() async {
+    try {
+      // Wait for 3 seconds
+      await Future.delayed(const Duration(seconds: 3));
+
+      // Check if onboarding has been seen
+      final prefs = await SharedPreferences.getInstance();
+      final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+      print('hasSeenOnboarding: $hasSeenOnboarding'); // Debug log
+
+      if (hasSeenOnboarding) {
+        print('Navigating to LoginScreen');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Login()),
+        );
+      } else {
+        print('Navigating to OnboardingPage');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OnboardingPage(
+              pages: [
+                OnboardingPageModel(
+                  title: 'Get Started with Payment Links',
+                  description:
+                      'Easily generate payment links by entering your product name, optional description, and fiat amount in USD. Click "Create Now" to begin!.',
+                  image: 'assets/images/onb1.png',
+                  bgColor: Colors.indigo,
+                  textColor: Colors.white,
+                ),
+                OnboardingPageModel(
+                  title: 'Transactions List.',
+                  description:
+                      'View and manage your transaction history, including withdraw fees and status updates. Current transactions.',
+                  image: 'assets/images/onb2.png',
+                  bgColor: AppColors.ksecondary,
+                  textColor: Colors.white,
+                ),
+                OnboardingPageModel(
+                  title: 'Welcome to Your Crypto Dashboard',
+                  description:
+                      'Allows conversion between BTC and USD, with options to adjust the amount using "+" and "-" buttons for change and volume.',
+                  image: 'assets/images/onb3.png',
+                  bgColor: AppColors.kprimary,
+                  textColor: Colors.white,
+                ),
+                OnboardingPageModel(
+                  title: 'Generate Pay Link',
+                  description:
+                      'Easily create a payment link by entering your product name, optional description, and fiat amount in USD. Click "Create Now" to get started!.',
+                  image: 'assets/images/onb4.png',
+                  bgColor: AppColors.kthirdColor,
+                  textColor: Colors.white,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error during navigation: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Customize as needed
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // You can replace this with your own logo/image
             AnimatedContainerWidget(
-                fadeCurve: Easing.legacy,
-                child: Image.asset(
-                  'assets/images/logo1.png',
-                  height: 250,
-                )),
+              fadeCurve: Easing.legacy,
+              child: Image.asset(
+                'assets/images/logo1.png',
+                height: 250,
+              ),
+            ),
             const SizedBox(height: 0),
             AnimatedContainerWidget(
               fadeCurve: Curves.linear,
@@ -77,16 +109,15 @@ class _SplashScreenState extends State<SplashScreen> {
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
-                  fontFamily:
-                      'Poppins', // Make sure to add this font in pubspec.yaml
+                  fontFamily: 'Poppins',
                   letterSpacing: 2,
                   foreground: Paint()
                     ..shader = const LinearGradient(
                       colors: <Color>[
-                        Color(0xFFef4923), // Indigo/Deep Purple (match your logo)
-                        Color(0xFF333333), // Purple Accent
+                        Color(0xFFef4923),
+                        Color(0xFF333333),
                       ],
-                    ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                    ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
                   shadows: const [
                     Shadow(
                       blurRadius: 8.0,
@@ -97,15 +128,6 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ),
             ),
-            // const Text(
-            //   'Welcome to My App',
-            //   style: TextStyle(
-            //     fontSize: 24,
-            //     fontWeight: FontWeight.bold,
-            //   ),
-            // ),
-            // const SizedBox(height: 20),
-            // const CircularProgressIndicator(),
           ],
         ),
       ),
