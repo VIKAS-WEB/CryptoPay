@@ -32,22 +32,28 @@ class PayRequestModelList {
   });
 
   factory PayRequestModelList.fromJson(Map<String, dynamic> json) {
-    return PayRequestModelList(
-      invoiceId: json['Invoice_id'] as int,
-      clientId: json['client_id'] as int,
-      name: json['name'] as String,
-      email: json['email'] as String,
-      description: json['description'] as String,
-      requestedAmount: (json['requestedamount'] as num).toDouble(),
-      requestedCurrency: json['requestedcurrency'] as String,
-      status: json['status'] as String,
-      createDate: DateTime.parse(json['createdate'] as String),
-      ip: json['ip'] as String,
-      trackid: json['trackid'] as String,
-      productName: json['product_name'] as String,
-      invoiceType: json['invoice_type'] as int,
-      returnUrl: json['return_url'] as String,
-    );
+    print('Parsing PayRequest JSON: $json'); // Log JSON for debugging
+    try {
+      return PayRequestModelList(
+        invoiceId: (json['Invoice_id'] as num?)?.toInt() ?? 0, // Handle null
+        clientId: (json['client_id'] as num?)?.toInt() ?? 0, // Handle null
+        name: json['name']?.toString() ?? '', // Handle null
+        email: json['email']?.toString() ?? '', // Handle null
+        description: json['description']?.toString() ?? '', // Handle null
+        requestedAmount: (json['requestedamount'] as num?)?.toDouble() ?? 0.0, // Handle null
+        requestedCurrency: json['requestedcurrency']?.toString() ?? '', // Handle null
+        status: json['status']?.toString() ?? '', // Handle null
+        createDate: DateTime.tryParse(json['createdate']?.toString() ?? '') ?? DateTime.now(), // Handle null/invalid date
+        ip: json['ip']?.toString() ?? '', // Handle null
+        trackid: json['trackid']?.toString() ?? '', // Handle null
+        productName: json['product_name']?.toString() ?? '', // Handle null
+        invoiceType: (json['invoice_type'] as num?)?.toInt() ?? 0, // Handle null
+        returnUrl: json['return_url']?.toString() ?? '', // Handle null
+      );
+    } catch (e) {
+      print('Error parsing JSON: $json, Error: $e');
+      rethrow; // Rethrow for UI to catch
+    }
   }
 
   Map<String, dynamic> toJson() {

@@ -1,3 +1,4 @@
+import 'package:crypto_pay/src/screens/CheckoutList/CheckOutList.dart';
 import 'package:crypto_pay/src/screens/CustomerList/CustomerList.dart';
 import 'package:crypto_pay/src/screens/DashboardScreen.dart';
 import 'package:crypto_pay/src/screens/LoginScreen.dart';
@@ -40,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Pages for Bottom Navigation
   final List<Widget> _bottomNavPages = [
     const DashboardScreen(), // Index 0 (Home)
-    const SearchPage(), // Index 1
+    const CheckoutListPage(), // Index 1
     const TransactionsScreen(), // Index 2
     const NotificationPage(), // Index 3
   ];

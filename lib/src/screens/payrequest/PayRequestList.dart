@@ -1,3 +1,4 @@
+import 'package:crypto_pay/src/screens/HomeScreen.dart';
 import 'package:crypto_pay/src/screens/payrequest/PayRequestScreen.dart';
 import 'package:crypto_pay/src/services/api_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,7 +40,18 @@ class _PayRequestListScreenState extends State<PayRequestListScreen> {
     return Scaffold(
       backgroundColor: AppColors.kwhite,
       appBar: AppBar(
-        leading: null,
+        leading: InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ));
+            },
+            child: Icon(
+              Icons.arrow_back,
+              color: AppColors.kbackground,
+            )),
         toolbarHeight: 70,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -68,14 +80,19 @@ class _PayRequestListScreenState extends State<PayRequestListScreen> {
             child: ElevatedButton(
               onPressed: () {
                 // TODO: Navigate to a page for creating a pay request
-                Navigator.push(context, CupertinoPageRoute(builder: (context) => PayRequestScreen()));
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => PayRequestScreen()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white.withOpacity(0.2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 elevation: 5,
               ),
-              child: const Text('+ Create Pay Request', style: TextStyle(color: Colors.white, fontSize: 16)),
+              child: const Text('+ Create Pay Request',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
             ),
           ),
         ],
@@ -100,7 +117,8 @@ class _PayRequestListScreenState extends State<PayRequestListScreen> {
                   elevation: 4,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.grey.withOpacity(0.3), width: 1),
+                    side: BorderSide(
+                        color: Colors.grey.withOpacity(0.3), width: 1),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -108,9 +126,24 @@ class _PayRequestListScreenState extends State<PayRequestListScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Row(
                         children: const [
-                          Expanded(flex: 2, child: Text('Product', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87))),
-                          Expanded(flex: 3, child: Text('Link', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87))),
-                          Expanded(flex: 1, child: Text('Price', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87))),
+                          Expanded(
+                              flex: 2,
+                              child: Text('Product',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87))),
+                          Expanded(
+                              flex: 3,
+                              child: Text('Link',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87))),
+                          Expanded(
+                              flex: 1,
+                              child: Text('Price',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87))),
                         ],
                       ),
                     ),
@@ -122,18 +155,27 @@ class _PayRequestListScreenState extends State<PayRequestListScreen> {
                 child: FutureBuilder<bool>(
                   future: AuthManager.isAuthenticated(),
                   builder: (context, authSnapshot) {
-                    if (authSnapshot.connectionState == ConnectionState.waiting) {
+                    if (authSnapshot.connectionState ==
+                        ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (authSnapshot.hasError || !authSnapshot.data!) {
-                      return const Center(child: Text('Please log in to view pay requests.', style: TextStyle(color: Colors.grey)));
+                      return const Center(
+                          child: Text('Please log in to view pay requests.',
+                              style: TextStyle(color: Colors.grey)));
                     }
                     return FutureBuilder<List<PayRequestModelList>>(
                       future: _payRequestsFuture,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-                          return const Center(child: Text('No pay requests generated yet.', style: TextStyle(color: Colors.grey)));
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError ||
+                            !snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(
+                              child: Text('No pay requests generated yet.',
+                                  style: TextStyle(color: Colors.grey)));
                         }
                         final payRequests = snapshot.data!;
                         return RefreshIndicator(
@@ -146,8 +188,10 @@ class _PayRequestListScreenState extends State<PayRequestListScreen> {
                               final request = payRequests[index];
                               return PayRequestItem(
                                 product: request.productName,
-                                link: 'https://cryptopay.oyefin.com/pay?iid=${request.trackid}',
-                                price: '${request.requestedAmount} ${request.requestedCurrency}',
+                                link:
+                                    'https://cryptopay.oyefin.com/pay?iid=${request.trackid}',
+                                price:
+                                    '${request.requestedAmount} ${request.requestedCurrency}',
                               );
                             },
                           ),
@@ -170,7 +214,11 @@ class PayRequestItem extends StatelessWidget {
   final String link;
   final String price;
 
-  const PayRequestItem({super.key, required this.product, required this.link, required this.price});
+  const PayRequestItem(
+      {super.key,
+      required this.product,
+      required this.link,
+      required this.price});
 
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
@@ -215,7 +263,10 @@ class PayRequestItem extends StatelessWidget {
                     onTap: () => _launchURL(link),
                     child: Text(
                       link,
-                      style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline, fontSize: 14),
+                      style: const TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                          fontSize: 14),
                     ),
                   ),
                 ),
@@ -224,7 +275,10 @@ class PayRequestItem extends StatelessWidget {
                   flex: 2,
                   child: Text(
                     price,
-                    style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600),
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.right,
                   ),

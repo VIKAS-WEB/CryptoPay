@@ -1,3 +1,4 @@
+import 'package:crypto_pay/src/screens/HomeScreen.dart';
 import 'package:crypto_pay/src/screens/paylinks/plink.dart';
 import 'package:crypto_pay/src/utils/Constants.dart';
 import 'package:flutter/cupertino.dart';
@@ -44,6 +45,11 @@ class _PayLinksListState extends State<PayLinksList> {
     return Scaffold(
       backgroundColor: AppColors.kwhite,
       appBar: AppBar(
+        leading: InkWell(
+          onTap: (){
+            Navigator.push(context, CupertinoPageRoute(builder: (context) => HomeScreen(),));
+          },
+          child: Icon(Icons.arrow_back, color: AppColors.kbackground,)),
         toolbarHeight: 70,
         backgroundColor: Colors.white,
         elevation: 0,

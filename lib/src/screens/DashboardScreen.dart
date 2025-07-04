@@ -475,7 +475,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             Row(
                               children: [
-                                const Text('Rate: '),
+                                const Text('Rate:'),
                                 SizedBox(width: 5),
                                 isFetchingRate
                                     ? const SpinKitThreeBounce(
@@ -537,8 +537,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Text(
                                   DateTime.now().toString().substring(0, 10),
                                   style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: rateFontSize - 2,
+                                  color: Colors.grey,
+                                  fontSize: rateFontSize - 2,
                                   ),
                                 ),
                               ],
@@ -884,8 +884,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     child: Card(
                                       elevation: 2,
                                       shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
+                                      borderRadius: BorderRadius.circular(10)),
                                       color: Colors.white,
                                       child: ListTile(
                                         contentPadding:
@@ -925,17 +924,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           ],
                                         ),
                                         trailing: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
+                                            padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
                                             color: statusColor.withOpacity(0.2),
-                                            borderRadius:
-                                                BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(12),
                                           ),
                                           child: Text(
                                             transaction.status,
                                             style: TextStyle(
-                                                color: statusColor, fontSize: 12),
+                                            color: statusColor, fontSize: 12),
                                           ),
                                         ),
                                       ),

@@ -2,7 +2,8 @@ import 'dart:ui';
 import 'package:crypto_pay/src/screens/InputCustomizado%20.dart';
 import 'package:crypto_pay/src/screens/LoginScreen.dart';
 import 'package:crypto_pay/src/screens/button.dart';
-import 'package:crypto_pay/src/utils/Constants.dart';
+import 'package:crypto_pay/src/services/api_service.dart';
+import 'package:crypto_pay/src/utils/Constants.dart'; // Add this import
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,13 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
   Animation<double>? _animacaoFade;
   Animation<double>? _animacaoSize;
   bool _isChecked = false;
+  
+  // Controllers for input fields
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  
+  // API Service instance
+  final ApiService _apiService = ApiService();
 
   // URLs for Terms & Conditions and Privacy Policy
   final String termsUrl = 'https://yourwebsite.com/terms';
@@ -71,6 +79,8 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _controller?.dispose();
+    _fullNameController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -88,6 +98,45 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error launching URL: $e')),
+      );
+    }
+  }
+
+  // Function to handle sign up
+  Future<void> _handleSignUp() async {
+    if (!_isChecked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please agree to Terms & Conditions')),
+      );
+      return;
+    }
+
+    if (_fullNameController.text.isEmpty || _emailController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    try {
+      final response = await _apiService.registerApp(
+        fullName: _fullNameController.text,
+        emailId: _emailController.text,
+      );
+
+      // Handle successful response
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registration successful!')),
+      );
+      
+      // Navigate to Login screen after successful registration
+      Navigator.pushReplacement(
+        context,
+        CupertinoPageRoute(builder: (context) => const Login()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Registration failed: $e')),
       );
     }
   }
@@ -157,10 +206,11 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                         ),
                         child: Column(
                           children: [
-                            const InputCustomizado(
+                            InputCustomizado(
                               hint: 'Your Full Name',
                               obscure: false,
-                              icon: Icon(Icons.person),
+                              icon: const Icon(Icons.person),
+                              controller: _fullNameController, // Add controller
                             ),
                             Container(
                               decoration: const BoxDecoration(
@@ -173,10 +223,11 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                                 ],
                               ),
                             ),
-                            const InputCustomizado(
+                            InputCustomizado(
                               hint: 'Enter Email Address',
                               obscure: false,
-                              icon: Icon(Icons.email),
+                              icon: const Icon(Icons.email),
+                              controller: _emailController, // Add controller
                             ),
                           ],
                         ),
@@ -240,7 +291,7 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
                   const SizedBox(height: 20),
                   Button(
                     controller: _controller!,
-                    onTap: () {},
+                    onTap: _handleSignUp, // Call the sign up handler
                     backgroundColor: AppColors.kprimary,
                     text: 'Sign Up',
                   ),
