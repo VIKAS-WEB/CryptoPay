@@ -31,11 +31,10 @@
 ## 📸 Screenshots
 
 <div align="center">
-  <img src="./ScreenShots/1.png" width="250" />
-  <img src="./ScreenShots/2.png" width="250" />
-  <img src="./ScreenShots/3.png" width="250" />
-  <img src="./ScreenShots/4.png" width="250" />
-  <img src="./ScreenShots/5.png" width="250" />
+  <img src="./ScreenShots/SplashScreen.png" width="250" />
+  <img src="./ScreenShots/LoginScreen.png" width="250" />
+  <img src="./ScreenShots/Dashboard.png" width="250" />
+  <img src="./ScreenShots/TransactionList.png" width="250" />
 </div>
 
 ---
